@@ -34,7 +34,16 @@ while True:
 
     client_socket.send(mensagem.encode())
     response = client_socket.recv(1024).decode()
-    print(response)
+    if escolha == '2':
+        # Verifique se a mensagem de resposta indica uma consulta bem-sucedida
+        if response.startswith("CONSULTA_RESULTADO"):
+            # Extrai o endereço e a porta do usuário consultado
+            _, endereco, porta = response.split()
+            print(f"Endereço: {endereco}, Porta: {porta}")
+        else:
+            print("Usuário não encontrado ou consulta inválida.")
+    else:
+        print(response)
 
 # Feche o socket do cliente
 client_socket.close()
