@@ -8,7 +8,7 @@ Este projeto visa desenvolver uma aplicação de videoconferência descentraliza
 
 - [ ] O socket cliente deve:
   - [x] Registrar-se no servidor utilizando um nome e um IP exclusivos e indicando a porta apta para receber o pedido de chamada
-  - [ ] Realizar consultas de endereços de portas por nomes específicos dos usuários.
+  - [x] Realizar consultas de endereços de portas por nomes específicos dos usuários.
   - [ ] Caso o cliente deseje se desvincular do servidor de registro, ele deve enviar uma mensagem com esta solicitação.
 
 - [ ] O socket servidor deve:
