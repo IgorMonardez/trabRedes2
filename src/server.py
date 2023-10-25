@@ -24,18 +24,29 @@ while True:
 
     # Recebe o nome e a porta do cliente
     client_data = client_socket.recv(1024).decode()
-    client_name, client_port = client_data.split(',')
+    client_info = client_data.split(',')
 
-    # Verifica se o usuário já está cadastrado
-    if is_user_registered(client_name):
-        print(f"Usuário {client_name} já está cadastrado.")
-        client_socket.send("Usuário já cadastrado.".encode())
-    else:
-        # Armazena informações do cliente na tabela dinâmica
-        clients[client_name] = (client_address[0], int(client_port))
+    # Verifica o tipo de mensagem recebida
+    if client_info[0] == "REGISTER":
+        # Registro de novo usuário
+        client_name, client_port = client_info[1], int(client_info[2])
+        if not is_user_registered(client_name):
+            clients[client_name] = (client_address[0], client_port)
+            print(f"Novo usuário registrado: Nome={client_name}, IP={client_address[0]}, Porta={client_port}")
+            client_socket.send("Registro bem-sucedido.".encode())
+        else:
+            print(f"Usuário {client_name} já está cadastrado.")
+            client_socket.send("Usuário já cadastrado.".encode())
+    elif client_info[0] == "QUERY":
+        # Consulta de usuário
+        user_to_query = client_info[1]
+        if is_user_registered(user_to_query):
+            user_info = clients[user_to_query]
+            response = f"Nome={user_to_query}, IP={user_info[0]}, Porta={user_info[1]}"
+            client_socket.send(response.encode())
+        else:
+            client_socket.send("Usuário não encontrado.".encode())
 
-    # Imprime a mensagem de confirmação
-    print(f"Novo usuário registrado: Nome={client_name}, IP={client_address[0]}, Porta={client_port}")
 
     # Fecha o socket do cliente
     client_socket.close()
