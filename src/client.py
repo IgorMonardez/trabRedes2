@@ -1,15 +1,18 @@
 import socket
 
+# Nome do cliente e porta para receber chamadas
+# Solicita ao usuário que insira seu nome
+client_name = input("Digite o nome do cliente: ")
+
+# Solicita ao usuário que insira a porta para receber chamadas
+client_port = int(input("Digite a porta para receber chamadas: "))
+
 while True:
     # Criação do socket do cliente a cada iteração
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     # Define o endereço e porta do servidor
-    server_address = ('localhost', 12346)
-
-    # Nome do cliente e porta para receber chamadas
-    client_name = "Vasco"
-    client_port = 7777
+    server_address = ('localhost', 12345)
 
     # Conecta ao servidor
     client_socket.connect(server_address)
