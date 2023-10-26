@@ -36,7 +36,7 @@ Este projeto visa desenvolver uma aplicação de videoconferência descentraliza
 
 ## Como Executar
 
-Execute o arquivo [server.py](src/server.py) em um terminal e o [cliente.py](src/client.py) em outro. Não pode haver mais de 2 instâncias de cliente na mesma máquina.
+Execute o arquivo [server.py](src/server.py) em um terminal e o [cliente.py](src/client.py) em outro.
 
 ## Licença
 
