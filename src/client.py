@@ -11,8 +11,8 @@ while True:
     # Criação do socket do cliente a cada iteração
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    # Define o endereço e porta do servidor
-    server_address = ('localhost', 12345)
+    # Define o endereço e porta do servidor - 192.168.1.15 é o endereço ip da máquina que está sendo executada o servidor.
+    server_address = ('192.168.1.15', 12345)
 
     # Conecta ao servidor
     client_socket.connect(server_address)
