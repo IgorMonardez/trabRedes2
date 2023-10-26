@@ -17,7 +17,6 @@ def handle_client(client_socket):
         client_data = client_socket.recv(1024).decode()
         if not client_data:
             break
-
         client_info = client_data.split(',')
         # Verifica o tipo de mensagem recebida
         if client_info[0] == "REGISTER":
@@ -62,7 +61,6 @@ print("Servidor de Videoconferência iniciado.")
 while True:
     print("Aguardando conexões...")
     client_socket, client_address = server_socket.accept()
-
     #Inicia uma nova thread para cada cliente
     client_handler = threading.Thread(target=handle_client, args=(client_socket,))
     client_handler.start()
