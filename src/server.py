@@ -10,8 +10,8 @@ server_socket.bind(server_address)
 
 # Inicializa a tabela dinâmica para armazenar informações dos clientes
 clients = {}
-# portas_possiveis = [1000, ]
-# portas_
+portas_possiveis = [7070, 7071, 7072, 7073, 7074]
+portas_usadas = []
 
 # Função para lidar com cada cliente em threads separadas
 def handle_client(client_socket):
@@ -23,7 +23,9 @@ def handle_client(client_socket):
         # Verifica o tipo de mensagem recebida
         if client_info[0] == "REGISTER":
             # Registro de novo usuário
-            client_name, client_port = client_info[1], int(client_info[2])
+            client_name = client_info[1]
+            client_port = portas_possiveis[len(portas_usadas)]
+            portas_usadas.append(client_port)
             if not is_user_registered(client_name):
                 clients[client_name] = (client_address[0], client_port)
                 print(f"Novo usuário registrado: Nome={client_name}, IP={client_address[0]}, Porta={client_port}")

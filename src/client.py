@@ -5,8 +5,6 @@ import socket
 client_name = input("Digite o nome do cliente: ")
 
 # Solicita ao usuário que insira a porta para receber chamadas
-client_port = int(input("Digite a porta para receber chamadas: "))
-
 while True:
     # Criação do socket do cliente a cada iteração
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -30,7 +28,7 @@ while True:
 
     if choice == "1":
         # Opção 1: Registrar-se no servidor
-        registration_data = f"REGISTER,{client_name},{client_port}"
+        registration_data = f"REGISTER,{client_name}"
         client_socket.send(registration_data.encode())
         response = client_socket.recv(1024).decode()
         print(response)
