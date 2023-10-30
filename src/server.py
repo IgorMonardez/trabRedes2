@@ -39,10 +39,9 @@ def handle_client(client_socket):
         elif client_info[0] == "QUERY":
             # Consulta de usuário
             user_to_query = client_info[1]
-            client_ip = client_address[0]
-            if query_user(user_to_query):
-                user_info = clients[client_ip]
-                response = f"Nome={user_to_query}, {client_ip}, {user_info}"
+            user_info = query_user(user_to_query)
+            if user_info != "None":
+                response = user_info
                 client_socket.send(response.encode())
             else:
                 client_socket.send("Usuário não encontrado.".encode())
@@ -70,12 +69,11 @@ def handle_client(client_socket):
 def is_user_registered(ip):
     return ip in clients
 
-def query_user(user):
-    for cliente in clients:
-        chave = clients.get(cliente)
-        if chave['Nome'] == user:
-            return 1
-    return 0
+def query_user(username):
+    for key, value in clients.items():
+        if value.get('Nome') == username:
+            return f"IP={key}, Info: {value}"
+    return "None"
 
 # Começa a ouvir por conexões
 server_socket.listen(5)

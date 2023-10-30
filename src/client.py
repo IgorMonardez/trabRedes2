@@ -11,7 +11,7 @@ while True:
 
     # TODO: Define o endereço e porta do servidor - O endereço de IP vai variar de acordo com o endereço de IP de seu roteador
     # TODO: IP UFF - 172.17.0.1
-    server_address = ("172.17.0.1", 7000)
+    server_address = ("192.168.1.15", 7000)
 
     # Conecta ao servidor
     client_socket.connect(server_address)
