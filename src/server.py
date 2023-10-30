@@ -10,6 +10,8 @@ server_socket.bind(server_address)
 
 # Inicializa a tabela dinâmica para armazenar informações dos clientes
 clients = {}
+# portas_possiveis = [1000, ]
+# portas_
 
 # Função para lidar com cada cliente em threads separadas
 def handle_client(client_socket):
@@ -26,6 +28,7 @@ def handle_client(client_socket):
                 clients[client_name] = (client_address[0], client_port)
                 print(f"Novo usuário registrado: Nome={client_name}, IP={client_address[0]}, Porta={client_port}")
                 client_socket.send("Registro bem-sucedido.".encode())
+                print(clients)
             else:
                 print(f"Usuário {client_name} já está cadastrado.")
                 client_socket.send("Usuário já cadastrado.".encode())
