@@ -41,8 +41,10 @@ while True:
         print("Resposta do servidor:", response)
     elif choice == "3":
         # Opção 3: Solicitar desvinculação do servidor
-        client_socket.send("UNREGISTER".encode())
+        client_socket.send(f"UNREGISTER,{client_name}".encode())
         print("Desvinculação do servidor solicitada.")
+        response = client_socket.recv(1024).decode()
+        print(response)
         break
     elif choice == "4":
         # Opção 4: Sair

@@ -39,16 +39,23 @@ def handle_client(client_socket):
             user_to_query = client_info[1]
             if is_user_registered(user_to_query):
                 user_info = clients[user_to_query]
-                response = f"Nome={user_to_query}, IP={user_info[0]}, Porta={user_info[1]}"
+                response = f"Nome={user_to_query}, {user_info[0]}, {user_info[1]}"
                 client_socket.send(response.encode())
             else:
                 client_socket.send("Usuário não encontrado.".encode())
         elif client_info[0] == "UNREGISTER":
             # Solicitação de desvinculação do servidor
-            # Implemente a lógica para remover o cliente da tabela, se necessário
-            print("Desvinculação do servidor solicitada.")
-            client_socket.send("Desvinculação do servidor confirmada.".encode())
-            break
+            user_to_remove = client_info[1]
+            if is_user_registered(user_to_remove):
+                portas_usadas.remove(clients.get(user_to_remove)[1])
+                clients.pop(user_to_remove)
+                print(clients)
+                client_socket.send("Usuário desvinculado com sucesso.".encode())
+                client_socket.close()
+                break
+            else:
+                print("Usuário não registrado no servidor.")
+                client_socket.send("Usuário não registrado no servidor".encode())
         else:
             print("Mensagem inválida do cliente.")
 
