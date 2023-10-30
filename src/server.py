@@ -42,7 +42,7 @@ def handle_client(client_socket):
             client_ip = client_address[0]
             if query_user(user_to_query):
                 user_info = clients[client_ip]
-                response = f"Nome={user_to_query}, {client_ip}, {user_info[1]}"
+                response = f"Nome={user_info['Nome']}, {client_ip}, {user_info['Porta']}"
                 client_socket.send(response.encode())
             else:
                 client_socket.send("Usuário não encontrado.".encode())
