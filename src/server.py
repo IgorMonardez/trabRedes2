@@ -31,7 +31,7 @@ def handle_client(client_socket):
                 clients[client_ip] = (client_name, client_port)
                 print(f"Novo usuário registrado: Nome={client_name}, IP={client_ip}, Porta={client_port}")
                 portas_usadas.append(client_port)
-                client_socket.send("Registro bem-sucedido.".encode())
+                client_socket.send("Registro bem sucedido.".encode())
                 print(clients)
             else:
                 print(f"Usuário {client_ip} já está cadastrado.")
