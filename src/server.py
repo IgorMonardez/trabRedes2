@@ -5,7 +5,7 @@ import threading
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Define o endereço e porta do servidor
-server_address = ('0.0.0.0', 12345)
+server_address = ('0.0.0.0', 7000)
 server_socket.bind(server_address)
 
 # Inicializa a tabela dinâmica para armazenar informações dos clientes
@@ -28,7 +28,7 @@ def handle_client(client_socket):
             client_port = portas_possiveis[len(portas_usadas)]
 
             if not is_user_registered(client_ip):
-                clients[client_ip] = (client_name, client_port)
+                clients[client_ip] = {"Nome": client_name, "Porta": client_port}
                 print(f"Novo usuário registrado: Nome={client_name}, IP={client_ip}, Porta={client_port}")
                 portas_usadas.append(client_port)
                 client_socket.send("Registro bem sucedido.".encode())
@@ -39,9 +39,10 @@ def handle_client(client_socket):
         elif client_info[0] == "QUERY":
             # Consulta de usuário
             user_to_query = client_info[1]
-            if is_user_registered(user_to_query):
-                user_info = clients[user_to_query]
-                response = f"Nome={user_to_query}, {user_info[0]}, {user_info[1]}"
+            client_ip = client_address[0]
+            if query_user(user_to_query):
+                user_info = clients[client_ip]
+                response = f"Nome={user_to_query}, {client_ip}, {user_info[1]}"
                 client_socket.send(response.encode())
             else:
                 client_socket.send("Usuário não encontrado.".encode())
@@ -51,6 +52,7 @@ def handle_client(client_socket):
             if is_user_registered(user_to_remove):
                 portas_usadas.remove(clients.get(user_to_remove)[1])
                 clients.pop(user_to_remove)
+                print("Usuário desvinculado com sucesso.")
                 print(clients)
                 client_socket.send("Usuário desvinculado com sucesso.".encode())
                 client_socket.close()
@@ -67,6 +69,13 @@ def handle_client(client_socket):
 # Função para verificar se um usuário já está cadastrado
 def is_user_registered(ip):
     return ip in clients
+
+def query_user(user):
+    for cliente in clients:
+        chave = clients.get(cliente)
+        if chave['Nome'] == user:
+            return 1
+    return 0
 
 # Começa a ouvir por conexões
 server_socket.listen(5)
