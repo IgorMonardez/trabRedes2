@@ -9,8 +9,9 @@ while True:
     # Criação do socket do cliente a cada iteração
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    # Define o endereço e porta do servidor - O endereço de IP vai variar de acordo com o endereço de IP de seu roteador
-    server_address = ("192.168.1.15", 12345)
+    # TODO: Define o endereço e porta do servidor - O endereço de IP vai variar de acordo com o endereço de IP de seu roteador
+    # TODO: IP UFF - 172.17.0.1
+    server_address = ("172.17.0.1", 12345)
 
     # Conecta ao servidor
     client_socket.connect(server_address)
