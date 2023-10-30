@@ -23,16 +23,18 @@ def handle_client(client_socket):
         # Verifica o tipo de mensagem recebida
         if client_info[0] == "REGISTER":
             # Registro de novo usuário
+            client_ip = client_address[0]
             client_name = client_info[1]
             client_port = portas_possiveis[len(portas_usadas)]
-            portas_usadas.append(client_port)
-            if not is_user_registered(client_name):
-                clients[client_name] = (client_address[0], client_port)
-                print(f"Novo usuário registrado: Nome={client_name}, IP={client_address[0]}, Porta={client_port}")
+
+            if not is_user_registered(client_ip):
+                clients[client_ip] = (client_name, client_port)
+                print(f"Novo usuário registrado: Nome={client_name}, IP={client_ip}, Porta={client_port}")
+                portas_usadas.append(client_port)
                 client_socket.send("Registro bem-sucedido.".encode())
                 print(clients)
             else:
-                print(f"Usuário {client_name} já está cadastrado.")
+                print(f"Usuário {client_ip} já está cadastrado.")
                 client_socket.send("Usuário já cadastrado.".encode())
         elif client_info[0] == "QUERY":
             # Consulta de usuário
@@ -45,7 +47,7 @@ def handle_client(client_socket):
                 client_socket.send("Usuário não encontrado.".encode())
         elif client_info[0] == "UNREGISTER":
             # Solicitação de desvinculação do servidor
-            user_to_remove = client_info[1]
+            user_to_remove = client_address[0]
             if is_user_registered(user_to_remove):
                 portas_usadas.remove(clients.get(user_to_remove)[1])
                 clients.pop(user_to_remove)
@@ -63,8 +65,8 @@ def handle_client(client_socket):
 
 
 # Função para verificar se um usuário já está cadastrado
-def is_user_registered(username):
-    return username in clients
+def is_user_registered(ip):
+    return ip in clients
 
 # Começa a ouvir por conexões
 server_socket.listen(5)
