@@ -47,18 +47,19 @@ def handle_client(client_socket):
                 client_socket.send("Usuário não encontrado.".encode())
         elif client_info[0] == "UNREGISTER":
             # Solicitação de desvinculação do servidor
-            user_to_remove = client_address[0]
-            if is_user_registered(user_to_remove):
-                portas_usadas.remove(clients.get(user_to_remove)[1])
+            client_name = client_info[1]
+            user_to_remove = query_user_adress(client_name)
+            if user_to_remove == 0:
+                print("Usuário não registrado no servidor.")
+                client_socket.send("Usuário não registrado no servidor".encode())
+            else:
+                portas_usadas.remove(clients.get(user_to_remove)['Porta'])
                 clients.pop(user_to_remove)
                 print("Usuário desvinculado com sucesso.")
                 print(clients)
                 client_socket.send("Usuário desvinculado com sucesso.".encode())
                 client_socket.close()
                 break
-            else:
-                print("Usuário não registrado no servidor.")
-                client_socket.send("Usuário não registrado no servidor".encode())
         else:
             print("Mensagem inválida do cliente.")
 
@@ -74,6 +75,12 @@ def query_user(username):
         if value.get('Nome') == username:
             return f"IP={key}, Info: {value}"
     return "None"
+
+def query_user_adress(username):
+    for key, value in clients.items():
+        if value.get('Nome') == username:
+            return key
+    return 0
 
 # Começa a ouvir por conexões
 server_socket.listen(5)
