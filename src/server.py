@@ -10,8 +10,7 @@ server_socket.bind(server_address)
 
 # Inicializa a tabela dinâmica para armazenar informações dos clientes
 clients = {}
-portas_possiveis = [7070, 7071, 7072, 7073, 7074]
-portas_usadas = []
+portas_possiveis = [7074, 7073, 7072, 7071, 7070]
 
 # Função para lidar com cada cliente em threads separadas
 def handle_client(client_socket):
@@ -25,12 +24,12 @@ def handle_client(client_socket):
             # Registro de novo usuário
             client_ip = client_address[0]
             client_name = client_info[1]
-            client_port = portas_possiveis[len(portas_usadas)]
+            client_port = portas_possiveis[len(portas_possiveis) - 1]
 
             if not is_user_registered(client_ip):
                 clients[client_ip] = {"Nome": client_name, "Porta": client_port}
                 print(f"Novo usuário registrado: Nome={client_name}, IP={client_ip}, Porta={client_port}")
-                portas_usadas.append(client_port)
+                portas_possiveis.remove(client_port)
                 client_socket.send("Registro bem sucedido.".encode())
                 print(clients)
             else:
@@ -53,7 +52,7 @@ def handle_client(client_socket):
                 print("Usuário não registrado no servidor.")
                 client_socket.send("Usuário não registrado no servidor".encode())
             else:
-                portas_usadas.remove(clients.get(user_to_remove)['Porta'])
+                portas_possiveis.append(clients.get(user_to_remove)['Porta'])
                 clients.pop(user_to_remove)
                 print("Usuário desvinculado com sucesso.")
                 print(clients)
