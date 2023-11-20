@@ -19,11 +19,11 @@ def handle_client(client_socket):
         if not client_data:
             break
         client_info = client_data.split(',')
+        client_ip = client_address[0]
+        client_name = client_info[1]
         # Verifica o tipo de mensagem recebida
         if client_info[0] == "REGISTER":
             # Registro de novo usuário
-            client_ip = client_address[0]
-            client_name = client_info[1]
             client_port = portas_possiveis[len(portas_possiveis) - 1]
 
             if not is_user_registered(client_ip):
@@ -59,10 +59,30 @@ def handle_client(client_socket):
                 client_socket.send("Usuário desvinculado com sucesso.".encode())
                 client_socket.close()
                 break
+        elif client_info[0] == "INVITE_REQUEST":
+            # Tratamento de solicitação de videochamada
+            sender_name = query_user_adress(client_address[0])['Nome']
+            destination_name = client_info[1]
+            print(f"Recebido pedido de videochamada de {sender_name} para {destination_name}")
+
+
         else:
             print("Mensagem inválida do cliente.")
 
     client_socket.close()
+
+
+def teste(client_socket, destination_name, message):
+    try:
+        sender_ip = query_user_adress(destination_name)
+        sender_port = 0000
+        sender_address = (sender_ip, sender_port)
+        client_socket.connect(sender_address)
+        client_socket.send(message.encode())
+    except ConnectionRefusedError:
+        print(f"Não foi possível notificar {destination_name} sobre a decisão da chamada.")
+    finally:
+        client_socket.close()
 
 
 # Função para verificar se um usuário já está cadastrado
