@@ -8,7 +8,7 @@ import cv2
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Define o endereço e porta do servidor
-server_address = ('0.0.0.0', 7000)
+server_address = ('0.0.0.0', 5000)
 server_socket.bind(server_address)
 
 # Inicializa a tabela dinâmica para armazenar informações dos clientes
@@ -20,7 +20,7 @@ portas_possiveis = [7074, 7073, 7072, 7071, 7070]
 def handle_client(client_socket):
     while True:
         # Caso padrão: Está chegando uma transmissão de vídeo, logo envio o video para o cliente de destino
-        client_data = transmite_video(client_socket)
+        client_data = client_socket.recv(1024).decode()
 
         if not client_data:
             break
@@ -85,52 +85,16 @@ def handle_client(client_socket):
 
             # Envia para a origem da call a resposta do destino da call + informação de destino IP e destino PORT
             cliente_socket_origem = query_user_socket(nome_cliente_origem)
-            destino_ip, destino_port = client_socket.getpeername()
+            destino_ip, destino_port = client_socket.getsockname()
 
             msg_final = f"{resposta_usuario},{destino_ip},{destino_port}"
-            cliente_socket_origem.send(resposta_usuario.encode())
+            cliente_socket_origem.send(msg_final.encode())
         else:
             print("Mensagem inválida do cliente.")
 
-def transmite_video(client_socket):
-    data = b""
-    payload_size = struct.calcsize('>L')
-
-    while True:
-        # Leia o tamanho da mensagem
-        while len(data) < payload_size:
-            data += client_socket.recv(4096)
-            if data.startswith(b'REGISTER') or data.startswith(b'QUERY') or data.startswith(b'UNREGISTER') or data.startswith(b'INVITE_REQUEST') or data.startswith(b'RESPONSE_INVITE_REQUEST'):
-                return data.decode()
-
-        # Leia os dados da mensagem
-        packed_msg_size = data[:payload_size]
-        data = data[payload_size:]
-        msg_size = struct.unpack('>L', packed_msg_size)[0]
-
-        # Continue lendo os dados da mensagem até que todos os dados sejam lidos
-        while len(data) < msg_size:
-            data += client_socket.recv(4096)
-
-        # Descompacte os dados da mensagem e reconstrua o quadro
-        frame_data = data[:msg_size]
-        data = data[msg_size:]
-        payload = pickle.loads(frame_data)
-
-        username = payload["username"]
-        frame = payload["frame"]
-
-        # Exibe o quadro recebido
-        cv2.imshow("Quadro no servidor", frame)
-        if(cv2.waitKey(1) & 0xFF == ord('q')):
-            break
-
-    # Libere os recursos
-    cv2.destroyAllWindows()
-
-def send_invite_to_client(client_destino):
+def send_invite_to_client(client_destino, nome_cliente_origem):
     try:
-        message = f"Solicitação de videochamada recebida, deseja aceitar a requisição? (s/n): "
+        message = f"Solicitação de videochamada recebida, deseja aceitar a requisição? (s/n): -{nome_cliente_origem}"
         client_destino.send(message.encode())
     except Exception as e:
         print(e)

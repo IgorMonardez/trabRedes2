@@ -5,79 +5,20 @@ import pickle
 import struct
 import threading
 
-teste = {}
+destination_ip = ""
+destination_port = 0
 
-def start_video_call():
-    peer_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-    destination_ip = teste.keys()
-    destination_port = teste.values()
+def start_video_call(client_socket):
 
     try:
-        peer_socket.connect((destination_ip, destination_port))
         print("Conectado ao peer para uma video call.")
-
-        # Start sending video frames to the peer
-        send_video_thread = threading.Thread(target=send_video, args=(peer_socket,))
-        send_video_thread.start()
-
-        # Start receiving video frames from the peer
-        receive_video_thread = threading.Thread(target=receive_video, args=(peer_socket,))
-        receive_video_thread.start()
 
     except Exception as e:
         print(f"Error ao iniciar video call: {e}")
 
     finally:
-        peer_socket.close()
+        client_socket.close()
         print("Video call finalizada.")
-
-def send_video(peer_socket):
-    # Inicia a captura de vídeo do cliente
-    cap = cv2.VideoCapture(0)
-
-    while True:
-        ret, frame = cap.read()
-        data = pickle.dumps({"frame": frame})
-        message_size = struct.pack(">L", len(data))
-        peer_socket.sendall(message_size + data)
-
-        if cv2.waitKey(1) == ord('q'):
-            break
-
-    cap.release()
-
-def receive_video(peer_socket):
-    try:
-        while True:
-            data = b""
-            payload_size = struct.calcsize('>L')
-
-            while len(data) < payload_size:
-                data += peer_socket.recv(4096)
-
-            packed_msg_size = data[:payload_size]
-            data = data[payload_size:]
-            msg_size = struct.unpack('>L', packed_msg_size)[0]
-
-            while len(data) < msg_size:
-                data += peer_socket.recv(4096)
-
-            frame_data = data[:msg_size]
-            data = data[msg_size:]
-            payload = pickle.loads(frame_data)
-
-            received_frame = payload["frame"]
-            cv2.imshow("Received Frame", received_frame)
-
-            if cv2.waitKey(1) == ord('q'):
-                break
-
-    except Exception as e:
-        print(f"Error receiving video frame from peer: {e}")
-
-    finally:
-        cv2.destroyAllWindows()
 
 def send_invite_request(client_socket, client_name):
     try:
@@ -85,7 +26,11 @@ def send_invite_request(client_socket, client_name):
         client_socket.send(message.encode())
         response_info = client_socket.recv(1024).decode().split(',')
 
-        response = input(response_info)
+        response = response_info[0]
+        global destination_ip
+        global destination_port
+        destination_ip = response_info[1]
+        destination_port = int(response_info[2])
 
         if response == "s":
             print("Chamada aceita. Inicie a videochamada.")
@@ -139,7 +84,7 @@ def main():
 
     # TODO: Define o endereço e porta do servidor
     # TODO: IP ICREDESEMFIO - 10.10.11.102 - Notebook Caio
-    server_address = ("192.168.1.15", 7000)
+    server_address = ("192.168.1.15", 5000)
 
     # Conecta ao servidor
     client_socket.connect(server_address)
@@ -185,7 +130,7 @@ def main():
             destination_name = input("Digite o nome do usuário que deseja chamar: ")
             transmitir_video = send_invite_request(client_socket, destination_name)
             if transmitir_video:
-                start_video_call()
+                start_video_call(client_socket)
         elif choice == "5":
             # Opção 6: Aguarda solicitacao de video chamada
             aguardando_solicitação_videochamada(60, client_socket)
