@@ -85,10 +85,7 @@ def send_invite_request(client_socket, client_name):
         client_socket.send(message.encode())
         response_info = client_socket.recv(1024).decode().split(',')
 
-        response = response_info[0]
-        destination_ip = response_info[1]
-        destination_port = int(response_info[2])
-        teste[destination_ip] = destination_port
+        response = input(response_info)
 
         if response == "s":
             print("Chamada aceita. Inicie a videochamada.")

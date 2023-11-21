@@ -77,7 +77,7 @@ def handle_client(client_socket):
             else:
                 cliente_socket_destino = query_user_socket(destinario_nome)
                 nome_cliente_origem = get_username_by_socket(client_socket)
-                send_invite_to_client(cliente_socket_destino, nome_cliente_origem).split(',')
+                send_invite_to_client(cliente_socket_destino, nome_cliente_origem)
 
         elif client_info[0] == "RESPONSE_INVITE_REQUEST":
             resposta_usuario = client_info[1] # Essa resposta vem do destino da call
@@ -87,7 +87,7 @@ def handle_client(client_socket):
             cliente_socket_origem = query_user_socket(nome_cliente_origem)
             destino_ip, destino_port = client_socket.getpeername()
 
-            msg_final = f"{resposta_usuario}, {destino_ip}, {destino_port}"
+            msg_final = f"{resposta_usuario},{destino_ip},{destino_port}"
             cliente_socket_origem.send(resposta_usuario.encode())
         else:
             print("Mensagem inválida do cliente.")
@@ -128,9 +128,9 @@ def transmite_video(client_socket):
     # Libere os recursos
     cv2.destroyAllWindows()
 
-def send_invite_to_client(client_destino, nome_cliente_origem):
+def send_invite_to_client(client_destino):
     try:
-        message = f"Solicitação de videochamada recebida, deseja aceitar a requisição? (s/n): -{nome_cliente_origem}"
+        message = f"Solicitação de videochamada recebida, deseja aceitar a requisição? (s/n): "
         client_destino.send(message.encode())
     except Exception as e:
         print(e)
