@@ -75,7 +75,7 @@ def handle_client(client_socket):
 
 def send_invite_to_client(client_destino):
     try:
-        message = "Solicitação de videochamada recebida, deseja aceitar a requisição? (s/n) "
+        message = "Solicitação de videochamada recebida, deseja aceitar a requisição? (s/n): "
         client_destino.send(message.encode())
         resposta_usuario = client_destino.recv(1024).decode()
         return resposta_usuario

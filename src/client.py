@@ -7,9 +7,9 @@ def send_invite_request(client_socket, server_address, client_name):
         client_socket.send(message.encode())
         response = client_socket.recv(1024).decode()
 
-        if response == "ACCEPTED":
+        if response == "s":
             print("Chamada aceita. Inicie a videochamada.")
-        elif response == "REJECTED":
+        elif response == "n":
             print("Chamada recusada pelo destinatário.")
         else:
             print(response)
@@ -17,23 +17,24 @@ def send_invite_request(client_socket, server_address, client_name):
     except ConnectionRefusedError:
         print("Não foi possível conectar ao destino.")
 
-def waiting_for_request(seconds, client_socket):
-    interval = 5
-    remaining_time = seconds
+def aguardando_solicitação_videochamada(segundos, client_socket):
+    intervalo = 5
+    tempo_restante = segundos
 
-    print(f"Timer iniciado para {seconds} segundos.")
+    print(f"Timer iniciado para {segundos} segundos.")
 
-    while remaining_time > 0:
+    while tempo_restante > 0:
         ready, _, _ = select.select([client_socket], [], [], 1)  # Espera por 1 segundo
         if ready:
-            response_from_server = client_socket.recv(1024).decode()
-            if response_from_server:
-                resposta_videochamada = input(response_from_server).lower()
-                client_socket.send(resposta_videochamada)
+            resposta_servidor = client_socket.recv(1024).decode()
+            if resposta_servidor:
+                resposta_videochamada = input(resposta_servidor).lower()
+                client_socket.send(resposta_videochamada.encode())
+                break
         else:
-            if remaining_time % interval == 0:
-                print(f"{remaining_time} segundos restantes...")
-            remaining_time -= 1
+            if tempo_restante % intervalo == 0:
+                print(f"{tempo_restante} segundos restantes...")
+            tempo_restante -= 1
 
     print("Timer concluído!")
 
@@ -90,7 +91,7 @@ def main():
             send_invite_request(client_socket, server_address, destination_name)
         elif choice == "5":
             # Opção 6: Aguarda solicitacao de video chamada
-            waiting_for_request(60, client_socket)
+            aguardando_solicitação_videochamada(60, client_socket)
         elif choice == "6":
             # Opção 6: Sair
             break
