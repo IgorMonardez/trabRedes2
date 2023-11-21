@@ -21,12 +21,12 @@ Este projeto visa desenvolver uma aplicação de videoconferência descentraliza
 ### ETAPA 2 (28/11/2023)
 
 - [ ] O socket cliente deve:
-  - [ ] Solicitar a videochamada a um par IP:porta de destino utilizando uma mensagem específica, como se fosse a mensagem de INVITE do protocolo SIP. Assim, o receptor pode negar ou aceitar o pedido.
+  - [x] Solicitar a videochamada a um par IP:porta de destino utilizando uma mensagem específica, como se fosse a mensagem de INVITE do protocolo SIP. Assim, o receptor pode negar ou aceitar o pedido.
   - [ ] A reprodução da mídia deve ser iniciada assim que a chamada é aceita.
   - [ ] Conter métodos para encerrar a transmissão.
 
 - [ ] O socket servidor deve:
-  - [ ] Aceitar ou rejeitar a chamada.
+  - [x] Aceitar ou rejeitar a chamada.
   - [ ] Se a chamada for aceita, informar na resposta o número das portas para receber os fluxos de áudio e vídeo.
 
 - [ ] Opcional
