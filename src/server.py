@@ -121,10 +121,10 @@ def transmite_video(client_socket):
         username = payload["username"]
         frame = payload["frame"]
 
-        # # Exibe o quadro recebido
-        # cv2.imshow("Recebendo", frame)
-        # if(cv2.waitKey(1) & 0xFF == ord('q')):
-        #     break
+        # Exibe o quadro recebido
+        cv2.imshow("Recebendo", frame)
+        if(cv2.waitKey(1) & 0xFF == ord('q')):
+            break
 
         # Encaminha o quadro para o segundo cliente
         try:
