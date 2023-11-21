@@ -17,10 +17,10 @@ def send_video(client_socket, username):
         data = pickle.dumps({"username": username, "frame": frame})
 
         # Empacota os dados para envio
-        message_size = struct.pack("I", len(data))
+        message_size = struct.pack(">L", len(data))
         client_socket.sendall(message_size + data)
 
-        if (cv2.waitKey(1) & 0xFF == ord('q')):
+        if cv2.waitKey(1) == ord('q'):
             break
 
     cap.release()

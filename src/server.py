@@ -93,21 +93,17 @@ def handle_client(client_socket):
 
 def transmite_video(client_socket):
     data = b""
+    payload_size = struct.calcsize('>L')
 
     while True:
         # Leia o tamanho da mensagem
-        while len(data) < struct.calcsize("L"):
-            packet = client_socket.recv(4)
-            if not packet:
-                break
-            if packet == b'JUMP':
-                return
-            data += packet
+        while len(data) < payload_size:
+            data += client_socket.recv(4096)
 
         # Leia os dados da mensagem
-        packet_msg_size = data[:4]
-        data = data[4:]
-        msg_size = struct.unpack("I", packet_msg_size)[0]
+        packed_msg_size = data[:payload_size]
+        data = data[payload_size:]
+        msg_size = struct.unpack('>L', packed_msg_size)[0]
 
         # Continue lendo os dados da mensagem até que todos os dados sejam lidos
         while len(data) < msg_size:
@@ -126,13 +122,13 @@ def transmite_video(client_socket):
         if(cv2.waitKey(1) & 0xFF == ord('q')):
             break
 
-        # Encaminha o quadro para o segundo cliente
-        try:
-            client_destination_socket = query_user_socket(username)
-            client_destination_socket.sendall(packet_msg_size + pickle.dumps(frame))
-        except socket.error as e:
-            print(f"Erro na transmissão de video: {e}")
-            break
+        # # Encaminha o quadro para o segundo cliente
+        # try:
+        #     client_destination_socket = query_user_socket(username)
+        #     client_destination_socket.sendall(packet_msg_size + pickle.dumps(frame))
+        # except socket.error as e:
+        #     print(f"Erro na transmissão de video: {e}")
+        #     break
 
     # Libere os recursos
     cv2.destroyAllWindows()
