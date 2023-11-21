@@ -5,64 +5,90 @@ import pickle
 import struct
 import threading
 
-def send_video(client_socket, username):
+teste = {}
+
+def start_video_call():
+    peer_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    destination_ip = teste.keys()
+    destination_port = teste.values()
+
+    try:
+        peer_socket.connect((destination_ip, destination_port))
+        print("Conectado ao peer para uma video call.")
+
+        # Start sending video frames to the peer
+        send_video_thread = threading.Thread(target=send_video, args=(peer_socket,))
+        send_video_thread.start()
+
+        # Start receiving video frames from the peer
+        receive_video_thread = threading.Thread(target=receive_video, args=(peer_socket,))
+        receive_video_thread.start()
+
+    except Exception as e:
+        print(f"Error ao iniciar video call: {e}")
+
+    finally:
+        peer_socket.close()
+        print("Video call finalizada.")
+
+def send_video(peer_socket):
     # Inicia a captura de vídeo do cliente
     cap = cv2.VideoCapture(0)
 
     while True:
-        # Leia o quadro da Câmera
         ret, frame = cap.read()
-
-        # Compacta o quadro
-        data = pickle.dumps({"username": username, "frame": frame})
-
-        # Empacota os dados para envio
+        data = pickle.dumps({"frame": frame})
         message_size = struct.pack(">L", len(data))
-        client_socket.sendall(message_size + data)
+        peer_socket.sendall(message_size + data)
 
         if cv2.waitKey(1) == ord('q'):
             break
 
     cap.release()
-    cv2.destroyAllWindows()
 
-def receive_video(client_socket):
-    data = b""
-    payload_size = struct.calcsize('>L')
+def receive_video(peer_socket):
+    try:
+        while True:
+            data = b""
+            payload_size = struct.calcsize('>L')
 
-    while True:
-        # Leia o tamanho da mensagem
-        while len(data) < payload_size:
-            data += client_socket.recv(4096)
+            while len(data) < payload_size:
+                data += peer_socket.recv(4096)
 
-        # Leia os dados da mensagem
-        packed_msg_size = data[:payload_size]
-        data = data[payload_size:]
-        msg_size = struct.unpack('>L', packed_msg_size)[0]
+            packed_msg_size = data[:payload_size]
+            data = data[payload_size:]
+            msg_size = struct.unpack('>L', packed_msg_size)[0]
 
-        # Continue lendo os dados da mensagem até que todos os dados sejam lidos
-        while len(data) < msg_size:
-            data += client_socket.recv(4096)
+            while len(data) < msg_size:
+                data += peer_socket.recv(4096)
 
-        # Descompacte os dados da mensagem e reconstrua o quadro
-        frame_data = data[:msg_size]
-        data = data[msg_size:]
-        frame = pickle.loads(frame_data)
+            frame_data = data[:msg_size]
+            data = data[msg_size:]
+            payload = pickle.loads(frame_data)
 
-        # Exibe o quadro recebido
-        cv2.imshow('Socket Cliente: Video Recebido', frame)
+            received_frame = payload["frame"]
+            cv2.imshow("Received Frame", received_frame)
 
-        if cv2.waitKey(1) == ord('q'):
-            break
+            if cv2.waitKey(1) == ord('q'):
+                break
 
-    # Libere os recursos
-    cv2.destroyAllWindows()
+    except Exception as e:
+        print(f"Error receiving video frame from peer: {e}")
+
+    finally:
+        cv2.destroyAllWindows()
 
 def send_invite_request(client_socket, client_name):
     try:
         message = f"INVITE_REQUEST, {client_name}"
         client_socket.send(message.encode())
-        response = client_socket.recv(1024).decode()
+        response_info = client_socket.recv(1024).decode().split(',')
+
+        response = response_info[0]
+        destination_ip = response_info[1]
+        destination_port = int(response_info[2])
+        teste[destination_ip] = destination_port
 
         if response == "s":
             print("Chamada aceita. Inicie a videochamada.")
@@ -162,14 +188,10 @@ def main():
             destination_name = input("Digite o nome do usuário que deseja chamar: ")
             transmitir_video = send_invite_request(client_socket, destination_name)
             if transmitir_video:
-                send_video(client_socket, destination_name)
+                start_video_call()
         elif choice == "5":
             # Opção 6: Aguarda solicitacao de video chamada
-            aceitou_videochamada = aguardando_solicitação_videochamada(60, client_socket)
-            if aceitou_videochamada:
-                receive_video(client_socket)
-            else:
-                break
+            aguardando_solicitação_videochamada(60, client_socket)
         elif choice == "6":
             # Opção 6: Sair
             break

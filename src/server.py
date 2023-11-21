@@ -13,6 +13,7 @@ server_socket.bind(server_address)
 
 # Inicializa a tabela dinâmica para armazenar informações dos clientes
 clients = {}
+conexoes = {}
 portas_possiveis = [7074, 7073, 7072, 7071, 7070]
 
 # Função para lidar com cada cliente em threads separadas
@@ -76,16 +77,17 @@ def handle_client(client_socket):
             else:
                 cliente_socket_destino = query_user_socket(destinario_nome)
                 nome_cliente_origem = get_username_by_socket(client_socket)
-                resposta_usuario_data = send_invite_to_client(cliente_socket_destino, nome_cliente_origem).split(',')
-                resposta_usuario = resposta_usuario_data[1]
-                client_socket.send(resposta_usuario.encode())
+                send_invite_to_client(cliente_socket_destino, nome_cliente_origem).split(',')
 
-        # TODO:  Mudar a lógica do invite_request para que a resposta do cliente para o servidor sempre seja tratada por esse elif abaixo.
         elif client_info[0] == "RESPONSE_INVITE_REQUEST":
-            resposta_usuario = client_info[1]
-            nome_cliente_origem = client_info[2]
+            resposta_usuario = client_info[1] # Essa resposta vem do destino da call
+            nome_cliente_origem = client_info[2] # Aqui eu tenho a origem da call
 
+            # Envia para a origem da call a resposta do destino da call + informação de destino IP e destino PORT
             cliente_socket_origem = query_user_socket(nome_cliente_origem)
+            destino_ip, destino_port = client_socket.getpeername()
+
+            msg_final = f"{resposta_usuario}, {destino_ip}, {destino_port}"
             cliente_socket_origem.send(resposta_usuario.encode())
         else:
             print("Mensagem inválida do cliente.")
@@ -123,14 +125,6 @@ def transmite_video(client_socket):
         if(cv2.waitKey(1) & 0xFF == ord('q')):
             break
 
-        # Encaminha o quadro para o segundo cliente
-        try:
-            client_destination_socket = query_user_socket(username)
-            client_destination_socket.sendall(packed_msg_size + pickle.dumps(frame))
-        except socket.error as e:
-            print(f"Erro na transmissão de video: {e}")
-            break
-
     # Libere os recursos
     cv2.destroyAllWindows()
 
@@ -138,8 +132,6 @@ def send_invite_to_client(client_destino, nome_cliente_origem):
     try:
         message = f"Solicitação de videochamada recebida, deseja aceitar a requisição? (s/n): -{nome_cliente_origem}"
         client_destino.send(message.encode())
-        resposta_usuario = client_destino.recv(1024).decode()
-        return resposta_usuario
     except Exception as e:
         print(e)
 
