@@ -119,17 +119,17 @@ def transmite_video(client_socket):
         frame = payload["frame"]
 
         # Exibe o quadro recebido
-        cv2.imshow("Recebendo", frame)
+        cv2.imshow("Quadro no servidor", frame)
         if(cv2.waitKey(1) & 0xFF == ord('q')):
             break
 
-        # # Encaminha o quadro para o segundo cliente
-        # try:
-        #     client_destination_socket = query_user_socket(username)
-        #     client_destination_socket.sendall(packet_msg_size + pickle.dumps(frame))
-        # except socket.error as e:
-        #     print(f"Erro na transmissão de video: {e}")
-        #     break
+        # Encaminha o quadro para o segundo cliente
+        try:
+            client_destination_socket = query_user_socket(username)
+            client_destination_socket.sendall(packed_msg_size + pickle.dumps(frame))
+        except socket.error as e:
+            print(f"Erro na transmissão de video: {e}")
+            break
 
     # Libere os recursos
     cv2.destroyAllWindows()

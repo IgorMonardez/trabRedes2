@@ -28,19 +28,17 @@ def send_video(client_socket, username):
 
 def receive_video(client_socket):
     data = b""
+    payload_size = struct.calcsize('>L')
 
     while True:
         # Leia o tamanho da mensagem
-        while len(data) < struct.calcsize("L"):
-            packet = client_socket.recv(4)
-            if not packet:
-                break
-            data += packet
+        while len(data) < payload_size:
+            data += client_socket.recv(4096)
 
         # Leia os dados da mensagem
-        packet_msg_size = data[:4]
-        data = data[4:]
-        msg_size = struct.unpack("I", packet_msg_size)[0]
+        packed_msg_size = data[:payload_size]
+        data = data[payload_size:]
+        msg_size = struct.unpack('>L', packed_msg_size)[0]
 
         # Continue lendo os dados da mensagem até que todos os dados sejam lidos
         while len(data) < msg_size:
@@ -52,18 +50,13 @@ def receive_video(client_socket):
         frame = pickle.loads(frame_data)
 
         # Exibe o quadro recebido
-        display_thread = threading.Thread(target=display_video, args=(frame,))
-        display_thread.start()
+        cv2.imshow('Socket Cliente: Video Recebido', frame)
 
-        if(cv2.waitKey(1) & 0xFF == ord('q')):
+        if cv2.waitKey(1) == ord('q'):
             break
 
     # Libere os recursos
     cv2.destroyAllWindows()
-
-def display_video(frame):
-    cv2.imshow("Recebendo", frame)
-    cv2.waitKey(1)
 
 def send_invite_request(client_socket, client_name):
     try:
