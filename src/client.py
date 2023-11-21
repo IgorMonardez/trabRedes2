@@ -1,6 +1,6 @@
+import select
 import socket
-import threading
-
+import time
 
 def send_invite_request(client_socket, server_address, client_name):
     try:
@@ -18,10 +18,24 @@ def send_invite_request(client_socket, server_address, client_name):
     except ConnectionRefusedError:
         print("Não foi possível conectar ao destino.")
 
-def aguarda_videochamada(client_socket):
-    while True:
-        data = client_socket.recv(1024).decode()
-        print(f"Mensagem: {data}")
+def waiting_for_request(seconds, client_socket):
+    interval = 5
+    remaining_time = seconds
+
+    print(f"Timer iniciado para {seconds} segundos.")
+
+    while remaining_time > 0:
+        ready, _, _ = select.select([client_socket], [], [], 1)  # Espera por 1 segundo
+        if ready:
+            response_from_server = client_socket.recv(1024).decode()
+            if response_from_server:
+                print(response_from_server)
+        else:
+            if remaining_time % interval == 0:
+                print(f"{remaining_time} segundos restantes...")
+            remaining_time -= 1
+
+    print("Timer concluído!")
 
 def main():
     # Criação do socket do cliente a cada iteração
@@ -44,7 +58,8 @@ def main():
         print("2. Realizar consulta de usuário")
         print("3. Solicitar desvinculação do servidor")
         print("4. Solicitar videochamada")
-        print("5. Sair")
+        print("5. Aguarda solicitação de videochamada")
+        print("6. Sair")
 
         choice = input("Opção: ")
 
@@ -74,7 +89,10 @@ def main():
             destination_name = input("Digite o nome do usuário que deseja chamar: ")
             send_invite_request(client_socket, server_address, destination_name)
         elif choice == "5":
-            # Opção 5: Sair
+            # Opção 6: Aguarda solicitacao de video chamada
+            waiting_for_request(60, client_socket)
+        elif choice == "6":
+            # Opção 6: Sair
             break
         else:
             print("Opção inválida. Tente novamente.")
