@@ -60,7 +60,7 @@ def receive_video(client_socket):
 
 def send_invite_request(client_socket, client_name):
     try:
-        message = f"INVITE_REQUEST, {client_name}"
+        message = f"JUMPINVITE_REQUEST, {client_name}"
         client_socket.send(message.encode())
         response = client_socket.recv(1024).decode()
 
@@ -139,13 +139,13 @@ def main():
         elif choice == "2":
             # Opção 2: Realizar consulta de usuário
             user_to_query = input("Digite o nome do usuário que deseja consultar: ")
-            query_request = f"QUERY,{user_to_query}"
+            query_request = f"JUMPQUERY,{user_to_query}"
             client_socket.send(query_request.encode())
             response = client_socket.recv(1024).decode()
             print("Resposta do servidor:", response)
         elif choice == "3":
             # Opção 3: Solicitar desvinculação do servidor
-            client_socket.send(f"UNREGISTER,{client_name}".encode())
+            client_socket.send(f"JUMPUNREGISTER,{client_name}".encode())
             print("Desvinculação do servidor solicitada.")
             response = client_socket.recv(1024).decode()
             print(response)

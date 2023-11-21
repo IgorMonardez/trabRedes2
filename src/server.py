@@ -100,7 +100,7 @@ def receive_video(client_socket):
             packet = client_socket.recv(4)
             if not packet:
                 break
-            if packet == b'REGI':
+            if packet == b'JUMP':
                 return
             data += packet
 
