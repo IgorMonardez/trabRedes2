@@ -1,4 +1,6 @@
 import socket
+import threading
+
 
 def send_invite_request(client_socket, server_address, client_name):
     try:
@@ -15,20 +17,26 @@ def send_invite_request(client_socket, server_address, client_name):
 
     except ConnectionRefusedError:
         print("Não foi possível conectar ao destino.")
-    finally:
-        client_socket.close()
+
+def aguarda_videochamada(client_socket):
+    while True:
+        data = client_socket.recv(1024).decode()
+        print(f"Mensagem: {data}")
 
 def main():
+    # Criação do socket do cliente a cada iteração
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    # TODO: Define o endereço e porta do servidor
+    # TODO: IP ICREDESEMFIO - 10.10.11.102 - Notebook Caio
+    server_address = ("192.168.1.15", 5000)
+
+    # Conecta ao servidor
+    client_socket.connect(server_address)
+
     while True:
-        # Criação do socket do cliente a cada iteração
-        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-        # TODO: Define o endereço e porta do servidor
-        # TODO: IP ICREDESEMFIO - 10.10.11.102 - Notebook Caio
-        server_address = ("192.168.1.15", 5000)
-
-        # Conecta ao servidor
-        client_socket.connect(server_address)
+        # # Criação do socket do cliente a cada iteração
+        # client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
         # Exibe um menu para o cliente escolher a ação
         print("Escolha uma ação:")
