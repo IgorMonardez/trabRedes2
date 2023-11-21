@@ -129,7 +129,7 @@ def transmite_video(client_socket):
         # Encaminha o quadro para o segundo cliente
         try:
             client_destination_socket = query_user_socket(username)
-            client_destination_socket.sendall(packet_msg_size + frame_data)
+            client_destination_socket.sendall(packet_msg_size + pickle.dumps(frame))
         except socket.error as e:
             print(f"Erro na transmissão de video: {e}")
             break

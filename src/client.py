@@ -3,6 +3,7 @@ import socket
 import cv2
 import pickle
 import struct
+import threading
 
 def send_video(client_socket, username):
     # Inicia a captura de vídeo do cliente
@@ -51,12 +52,18 @@ def receive_video(client_socket):
         frame = pickle.loads(frame_data)
 
         # Exibe o quadro recebido
-        cv2.imshow("Recebendo", frame)
+        display_thread = threading.Thread(target=display_video, args=(frame,))
+        display_thread.start()
+
         if(cv2.waitKey(1) & 0xFF == ord('q')):
             break
 
     # Libere os recursos
     cv2.destroyAllWindows()
+
+def display_video(frame):
+    cv2.imshow("Recebendo", frame)
+    cv2.waitKey(1)
 
 def send_invite_request(client_socket, client_name):
     try:
