@@ -1,11 +1,14 @@
 import socket
 import threading
+import pickle
+import struct
+import cv2
 
 # Criação do socket do servidor
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Define o endereço e porta do servidor
-server_address = ('0.0.0.0', 5000)
+server_address = ('0.0.0.0', 7000)
 server_socket.bind(server_address)
 
 # Inicializa a tabela dinâmica para armazenar informações dos clientes
@@ -15,6 +18,9 @@ portas_possiveis = [7074, 7073, 7072, 7071, 7070]
 # Função para lidar com cada cliente em threads separadas
 def handle_client(client_socket):
     while True:
+        # Caso padrão: Está chegando uma transmissão de vídeo
+        receive_video(client_socket)
+
         client_data = client_socket.recv(1024).decode()
         if not client_data:
             break
@@ -84,6 +90,41 @@ def handle_client(client_socket):
             cliente_socket_origem.send(resposta_usuario.encode())
         else:
             print("Mensagem inválida do cliente.")
+
+def receive_video(client_socket):
+    data = b""
+
+    while True:
+        # Leia o tamanho da mensagem
+        while len(data) < struct.calcsize("L"):
+            packet = client_socket.recv(4)
+            if not packet:
+                break
+            if packet == b'REGI':
+                return
+            data += packet
+
+        # Leia os dados da mensagem
+        packet_msg_size = data[:4]
+        data = data[4:]
+        msg_size = struct.unpack("L", packet_msg_size)[0]
+
+        # Continue lendo os dados da mensagem até que todos os dados sejam lidos
+        while len(data) < msg_size:
+            data += client_socket.recv(4096)
+
+        # Descompacte os dados da mensagem e reconstrua o quadro
+        frame_data = data[:msg_size]
+        data = data[msg_size:]
+        frame = pickle.loads(frame_data)
+
+        # Exibe o quadro recebido
+        cv2.imshow("Recebendo", frame)
+        if(cv2.waitKey(1) & 0xFF == ord('q')):
+            break
+
+    # Libere os recursos
+    cv2.destroyAllWindows()
 
 def send_invite_to_client(client_destino, nome_cliente_origem):
     try:

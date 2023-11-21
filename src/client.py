@@ -1,7 +1,64 @@
 import select
 import socket
+import cv2
+import pickle
+import struct
 
-def send_invite_request(client_socket, server_address, client_name):
+def send_video(client_socket):
+    # Inicia a captura de vídeo do cliente
+    cap = cv2.VideoCapture(0)
+
+    while True:
+        # Leia o quadro da Câmera
+        ret, frame = cap.read()
+
+        # Compacta o quadro
+        data = pickle.dumps(frame)
+
+        # Empacota os dados para envio
+        message_size = struct.pack("L", len(data))
+        client_socket.sendall(message_size + data)
+
+        if (cv2.waitKey(1) & 0xFF == ord('q')):
+            break
+
+    cap.release()
+    cv2.destroyAllWindows()
+
+def receive_video(client_socket):
+    data = b""
+
+    while True:
+        # Leia o tamanho da mensagem
+        while len(data) < struct.calcsize("L"):
+            packet = client_socket.recv(4)
+            if not packet:
+                break
+            data += packet
+
+        # Leia os dados da mensagem
+        packet_msg_size = data[:4]
+        data = data[4:]
+        msg_size = struct.unpack("L", packet_msg_size)[0]
+
+        # Continue lendo os dados da mensagem até que todos os dados sejam lidos
+        while len(data) < msg_size:
+            data += client_socket.recv(4096)
+
+        # Descompacte os dados da mensagem e reconstrua o quadro
+        frame_data = data[:msg_size]
+        data = data[msg_size:]
+        frame = pickle.loads(frame_data)
+
+        # Exibe o quadro recebido
+        cv2.imshow("Recebendo", frame)
+        if(cv2.waitKey(1) & 0xFF == ord('q')):
+            break
+
+    # Libere os recursos
+    cv2.destroyAllWindows()
+
+def send_invite_request(client_socket, client_name):
     try:
         message = f"INVITE_REQUEST, {client_name}"
         client_socket.send(message.encode())
@@ -9,10 +66,13 @@ def send_invite_request(client_socket, server_address, client_name):
 
         if response == "s":
             print("Chamada aceita. Inicie a videochamada.")
+            return True
         elif response == "n":
             print("Chamada recusada pelo destinatário.")
+            return False
         else:
             print(response)
+            return False
 
     except ConnectionRefusedError:
         print("Não foi possível conectar ao destino.")
@@ -50,7 +110,7 @@ def main():
 
     # TODO: Define o endereço e porta do servidor
     # TODO: IP ICREDESEMFIO - 10.10.11.102 - Notebook Caio
-    server_address = ("192.168.1.15", 5000)
+    server_address = ("192.168.1.15", 7000)
 
     # Conecta ao servidor
     client_socket.connect(server_address)
@@ -72,7 +132,7 @@ def main():
 
         if choice == "1":
             # Opção 1: Registrar-se no servidor
-            registration_data = f"REGISTER,{client_name}"
+            registration_data = f"JUMPREGISTER,{client_name}"
             client_socket.send(registration_data.encode())
             response = client_socket.recv(1024).decode()
             print(response)
@@ -94,7 +154,9 @@ def main():
         elif choice == "4":
             # Opção 4: Solicitar videochamada
             destination_name = input("Digite o nome do usuário que deseja chamar: ")
-            send_invite_request(client_socket, server_address, destination_name)
+            transmitir_video = send_invite_request(client_socket, destination_name)
+            if transmitir_video:
+                send_video(client_socket)
         elif choice == "5":
             # Opção 6: Aguarda solicitacao de video chamada
             aguardando_solicitação_videochamada(60, client_socket)
