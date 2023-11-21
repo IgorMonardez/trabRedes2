@@ -59,6 +59,7 @@ def handle_client(client_socket):
                 client_socket.send("Usuário desvinculado com sucesso.".encode())
                 client_socket.close()
         elif client_info[0] == "INVITE_REQUEST":
+            # TODO Colocar uma verificação em que o usuário pode somente fazer isso se estiver registrado no servidor.
             # Tratamento de solicitação de videochamada
             destinario_nome = client_info[1].strip()
 
@@ -67,7 +68,7 @@ def handle_client(client_socket):
             else:
                 cliente_socket_destino = query_user_socket(destinario_nome)
                 resposta_usuario = send_invite_to_client(cliente_socket_destino)
-                client_socket.send(f"Resposta do usuário: {resposta_usuario}".encode())
+                client_socket.send(resposta_usuario.encode())
 
             #print(f"Recebido pedido de videochamada de {remetente_name} para {destinario_nome}")
         else:

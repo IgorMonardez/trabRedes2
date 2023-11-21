@@ -28,7 +28,7 @@ def aguardando_solicitação_videochamada(segundos, client_socket):
         if ready:
             resposta_servidor = client_socket.recv(1024).decode()
             if resposta_servidor:
-                resposta_videochamada = input(resposta_servidor).lower()
+                resposta_videochamada = input(resposta_servidor).lower() # TODO: Colocar uma verificação para o usuário usar apenas 's' ou 'n' como input
                 client_socket.send(resposta_videochamada.encode())
                 break
         else:
@@ -36,7 +36,7 @@ def aguardando_solicitação_videochamada(segundos, client_socket):
                 print(f"{tempo_restante} segundos restantes...")
             tempo_restante -= 1
 
-    print("Timer concluído!")
+    print("Estado de aguardando solicitação de chamada encerrado!")
 
 def main():
     # Criação do socket do cliente a cada iteração
