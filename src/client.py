@@ -35,7 +35,7 @@ def aguardando_solicitação_videochamada(segundos, client_socket):
                 resposta_videochamada = input(resposta_servidor_mensagem).lower() # TODO: Colocar uma verificação para o usuário usar apenas 's' ou 'n' como input
 
                 resposta_final = f"{resposta_servidor_cabeçalho},{resposta_videochamada},{resposta_servidor_nome_cliente_origem}"
-                client_socket.send(resposta_videochamada.encode())
+                client_socket.send(resposta_final.encode())
                 break
         else:
             if tempo_restante % intervalo == 0:
