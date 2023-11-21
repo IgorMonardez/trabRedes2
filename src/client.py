@@ -2,7 +2,6 @@ import socket
 
 def send_invite_request(client_socket, server_address, client_name):
     try:
-        client_socket.connect(server_address)
         message = f"INVITE_REQUEST, {client_name}"
         client_socket.send(message.encode())
         response = client_socket.recv(1024).decode()
@@ -12,7 +11,7 @@ def send_invite_request(client_socket, server_address, client_name):
         elif response == "REJECTED":
             print("Chamada recusada pelo destinatário.")
         else:
-            print("Resposta inválida do servidor.")
+            print(response)
 
     except ConnectionRefusedError:
         print("Não foi possível conectar ao destino.")
@@ -26,7 +25,7 @@ def main():
 
         # TODO: Define o endereço e porta do servidor
         # TODO: IP ICREDESEMFIO - 10.10.11.102 - Notebook Caio
-        server_address = ("192.168.0.114", 7000)
+        server_address = ("192.168.1.15", 5000)
 
         # Conecta ao servidor
         client_socket.connect(server_address)
@@ -60,7 +59,8 @@ def main():
             print("Desvinculação do servidor solicitada.")
             response = client_socket.recv(1024).decode()
             print(response)
-            break
+            client_socket.close()
+
         elif choice == "4":
             # Opção 4: Solicitar videochamada
             destination_name = input("Digite o nome do usuário que deseja chamar: ")
@@ -70,9 +70,6 @@ def main():
             break
         else:
             print("Opção inválida. Tente novamente.")
-
-        # Fecha o socket do cliente após cada iteração
-        client_socket.close()
 
 if __name__ == "__main__":
     client_name = input("Digite o nome do cliente: ")

@@ -5,7 +5,7 @@ import threading
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Define o endereço e porta do servidor
-server_address = ('0.0.0.0', 7000)
+server_address = ('0.0.0.0', 5000)
 server_socket.bind(server_address)
 
 # Inicializa a tabela dinâmica para armazenar informações dos clientes
@@ -27,7 +27,7 @@ def handle_client(client_socket):
             client_port = portas_possiveis[len(portas_possiveis) - 1]
 
             if not is_user_registered(client_ip):
-                clients[client_ip] = {"Nome": client_name, "Porta": client_port}
+                clients[client_socket] = {"Nome": client_name, "Porta": client_port}
                 print(f"Novo usuário registrado: Nome={client_name}, IP={client_ip}, Porta={client_port}")
                 portas_possiveis.remove(client_port)
                 client_socket.send("Registro bem sucedido.".encode())
@@ -38,7 +38,7 @@ def handle_client(client_socket):
         elif client_info[0] == "QUERY":
             # Consulta de usuário
             user_to_query = client_info[1]
-            user_info = query_user(user_to_query)
+            user_info = query_user_by_username(user_to_query)
             if user_info != "None":
                 response = user_info
                 client_socket.send(response.encode())
@@ -47,7 +47,7 @@ def handle_client(client_socket):
         elif client_info[0] == "UNREGISTER":
             # Solicitação de desvinculação do servidor
             client_name = client_info[1]
-            user_to_remove = query_user_adress(client_name)
+            user_to_remove = query_user_socket(client_name)
             if user_to_remove == 0:
                 print("Usuário não registrado no servidor.")
                 client_socket.send("Usuário não registrado no servidor".encode())
@@ -58,44 +58,45 @@ def handle_client(client_socket):
                 print(clients)
                 client_socket.send("Usuário desvinculado com sucesso.".encode())
                 client_socket.close()
-                break
         elif client_info[0] == "INVITE_REQUEST":
             # Tratamento de solicitação de videochamada
-            sender_name = query_user_adress(client_address[0])['Nome']
-            destination_name = client_info[1]
-            print(f"Recebido pedido de videochamada de {sender_name} para {destination_name}")
+            destinario_nome = client_info[1].strip()
 
+            if not is_user_connected_by_username(destinario_nome):
+                client_socket.send("Usuário não encontrado.".encode())
+            else:
+                cliente_socket_destino = query_user_socket(destinario_nome)
+                send_invite_to_client(cliente_socket_destino)
 
+            #print(f"Recebido pedido de videochamada de {remetente_name} para {destinario_nome}")
         else:
             print("Mensagem inválida do cliente.")
 
-    client_socket.close()
-
-
-def teste(client_socket, destination_name, message):
+def send_invite_to_client(client_socket):
     try:
-        sender_ip = query_user_adress(destination_name)
-        sender_port = 0000
-        sender_address = (sender_ip, sender_port)
-        client_socket.connect(sender_address)
+        message = "Mensagem recebida com sucesso."
         client_socket.send(message.encode())
-    except ConnectionRefusedError:
-        print(f"Não foi possível notificar {destination_name} sobre a decisão da chamada.")
-    finally:
-        client_socket.close()
+    except Exception as e:
+        print(e)
 
 
 # Função para verificar se um usuário já está cadastrado
 def is_user_registered(ip):
     return ip in clients
 
-def query_user(username):
+def is_user_connected_by_username(username):
+    for key, value in clients.items():
+        if value.get('Nome') == username:
+            return True
+    return False
+
+def query_user_by_username(username):
     for key, value in clients.items():
         if value.get('Nome') == username:
             return f"IP={key}, Info: {value}"
     return "None"
 
-def query_user_adress(username):
+def query_user_socket(username):
     for key, value in clients.items():
         if value.get('Nome') == username:
             return key
