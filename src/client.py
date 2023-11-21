@@ -17,14 +17,15 @@ def start_video_call(client_socket):
 
         while True:
             ret, frame = cam.read()
-            serialized_frame = pickle.dumps(frame)
-            message = struct.pack("Q", len(serialized_frame)) + serialized_frame
-            client_socket.sendall(message)
+            data = pickle.dumps(frame)
 
-            cv2.imshow('Video Call', frame)
-            key = cv2.waitKey(1) & 0xFF
-            if key == ord('q'):
-                client_socket.close()
+            # Send the size of the serialized frame to the client
+            client_socket.sendall(struct.pack('>L', len(data)))
+
+            # Send the serialized frame
+            client_socket.sendall(data)
+
+            if cv2.waitKey(1) == ord('q'):
                 break
 
     except Exception as e:
@@ -98,7 +99,7 @@ def main():
 
     # TODO: Define o endereço e porta do servidor
     # TODO: IP ICREDESEMFIO - 10.10.11.102 - Notebook Caio
-    server_address = ("192.168.1.15", 7000)
+    server_address = ("192.168.1.15", 5000)
 
     # Conecta ao servidor
     client_socket.connect(server_address)

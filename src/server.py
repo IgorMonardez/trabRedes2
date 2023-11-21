@@ -8,7 +8,7 @@ import cv2
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Define o endereço e porta do servidor
-server_address = ('0.0.0.0', 7000)
+server_address = ('0.0.0.0', 5000)
 server_socket.bind(server_address)
 
 # Inicializa a tabela dinâmica para armazenar informações dos clientes
@@ -19,12 +19,15 @@ portas_possiveis = [7074, 7073, 7072, 7071, 7070]
 # Função para lidar com cada cnte em threads separadas
 def handle_client(client_socket):
     while True:
-        # Caso padrão: Está chegando uma transmissão de vídeo, logo envio o video para o cliente de destino
-        client_data = client_socket.recv(1024).decode()
-
+        print("Conexão de cliente", client_address)
+        client_data = client_socket.recv(4096)
         if not client_data:
             break
-        client_info = client_data.split(',')
+
+        if not client_data.startswith(b'REGISTER') and not client_data.startswith(b'UNREGISTER') and not client_data.startswith(b'QUERY') and not client_data.startswith(b'INVITE_REQUEST') and not client_data.startswith(b'RESPONSE_INVITE_REQUEST'):
+            receive_video_from_client()
+
+        client_info = client_data.decode().split(',')
         client_ip = client_address[0]
         if len(client_info) > 1 and client_info[1] is not None:
             client_name = client_info[1]
@@ -98,6 +101,43 @@ def send_invite_to_client(client_destino, nome_cliente_origem):
         client_destino.send(message.encode())
     except Exception as e:
         print(e)
+
+def receive_video_from_client():
+    try:
+        print("Recebendo vídeo de ", client_address)
+
+        data = b""
+        payload_size = struct.calcsize('>L')
+
+        while True:
+            # Receive the size of the serialized frame
+            while len(data) < payload_size:
+                data += client_socket.recv(4096)
+
+            packed_msg_size = data[:payload_size]
+            data = data[payload_size:]
+            msg_size = struct.unpack('>L', packed_msg_size)[0]
+
+            # Receive the serialized frame
+            while len(data) < msg_size:
+                data += client_socket.recv(4096)
+
+            frame_data = data[:msg_size]
+            data = data[msg_size:]
+
+            # Deserialize the frame and display it
+            frame = pickle.loads(frame_data)
+            cv2.imshow('Received Video', frame)
+
+            if cv2.waitKey(1) == ord('q'):
+                break
+
+    except Exception as e:
+        print("Erro ao receber vídeo do cliente: ", e)
+
+    finally:
+        cv2.destroyAllWindows()
+        client_socket.close()
 
 
 # Função para verificar se um usuário já está cadastrado
