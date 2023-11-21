@@ -3,12 +3,13 @@ import threading
 import pickle
 import struct
 import cv2
+import numpy as np
 
 # Criação do socket do servidor
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Define o endereço e porta do servidor
-server_address = ('0.0.0.0', 5000)
+server_address = ('0.0.0.0', 7000)
 server_socket.bind(server_address)
 
 # Inicializa a tabela dinâmica para armazenar informações dos clientes
@@ -25,7 +26,7 @@ def handle_client(client_socket):
             break
 
         if not client_data.startswith(b'REGISTER') and not client_data.startswith(b'UNREGISTER') and not client_data.startswith(b'QUERY') and not client_data.startswith(b'INVITE_REQUEST') and not client_data.startswith(b'RESPONSE_INVITE_REQUEST'):
-            receive_video_from_client()
+            receive_video_from_client(client_socket)
 
         client_info = client_data.decode().split(',')
         client_ip = client_address[0]
@@ -102,35 +103,9 @@ def send_invite_to_client(client_destino, nome_cliente_origem):
     except Exception as e:
         print(e)
 
-def receive_video_from_client():
+def receive_video_from_client(client_socket):
     try:
         print("Recebendo vídeo de ", client_address)
-
-        data = b""
-        payload_size = struct.calcsize('>L')
-
-        while True:
-            # Receive the size of the serialized frame
-            while len(data) < payload_size:
-                data += client_socket.recv(4096)
-
-            packed_msg_size = data[:payload_size]
-            data = data[payload_size:]
-            msg_size = struct.unpack('>L', packed_msg_size)[0]
-
-            # Receive the serialized frame
-            while len(data) < msg_size:
-                data += client_socket.recv(4096)
-
-            frame_data = data[:msg_size]
-            data = data[msg_size:]
-
-            # Deserialize the frame and display it
-            frame = pickle.loads(frame_data)
-            cv2.imshow('Received Video', frame)
-
-            if cv2.waitKey(1) == ord('q'):
-                break
 
     except Exception as e:
         print("Erro ao receber vídeo do cliente: ", e)
