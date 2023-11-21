@@ -71,16 +71,17 @@ def handle_client(client_socket):
             else:
                 cliente_socket_destino = query_user_socket(destinario_nome)
                 nome_cliente_origem = get_username_by_socket(client_socket)
-                resposta_usuario = send_invite_to_client(cliente_socket_destino, nome_cliente_origem)
+                resposta_usuario_data = send_invite_to_client(cliente_socket_destino, nome_cliente_origem).split(',')
+                resposta_usuario = resposta_usuario_data[1]
                 client_socket.send(resposta_usuario.encode())
 
-            #print(f"Recebido pedido de videochamada de {remetente_name} para {destinario_nome}")
+        # TODO:  Mudar a lógica do invite_request para que a resposta do cliente para o servidor sempre seja tratada por esse elif abaixo.
         elif client_info[0] == "RESPONSE_INVITE_REQUEST":
-            resposta = client_info[1]
+            resposta_usuario = client_info[1]
             nome_cliente_origem = client_info[2]
 
             cliente_socket_origem = query_user_socket(nome_cliente_origem)
-            cliente_socket_origem.send(resposta.encode())
+            cliente_socket_origem.send(resposta_usuario.encode())
         else:
             print("Mensagem inválida do cliente.")
 
