@@ -19,9 +19,8 @@ portas_possiveis = [7074, 7073, 7072, 7071, 7070]
 def handle_client(client_socket):
     while True:
         # Caso padrão: Está chegando uma transmissão de vídeo, logo envio o video para o cliente de destino
-        transmite_video(client_socket)
+        client_data = transmite_video(client_socket)
 
-        client_data = client_socket.recv(1024).decode()
         if not client_data:
             break
         client_info = client_data.split(',')
@@ -99,6 +98,8 @@ def transmite_video(client_socket):
         # Leia o tamanho da mensagem
         while len(data) < payload_size:
             data += client_socket.recv(4096)
+            if data.startswith(b'REGISTER') or data.startswith(b'QUERY') or data.startswith(b'UNREGISTER') or data.startswith(b'INVITE_REQUEST') or data.startswith(b'RESPONSE_INVITE_REQUEST'):
+                return data.decode()
 
         # Leia os dados da mensagem
         packed_msg_size = data[:payload_size]
