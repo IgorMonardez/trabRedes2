@@ -4,7 +4,7 @@ import cv2
 import pickle
 import struct
 
-def send_video(client_socket):
+def send_video(client_socket, username):
     # Inicia a captura de vídeo do cliente
     cap = cv2.VideoCapture(0)
 
@@ -13,7 +13,7 @@ def send_video(client_socket):
         ret, frame = cap.read()
 
         # Compacta o quadro
-        data = pickle.dumps(frame)
+        data = pickle.dumps({"username": username, "frame": frame})
 
         # Empacota os dados para envio
         message_size = struct.pack("I", len(data))
@@ -39,7 +39,7 @@ def receive_video(client_socket):
         # Leia os dados da mensagem
         packet_msg_size = data[:4]
         data = data[4:]
-        msg_size = struct.unpack("L", packet_msg_size)[0]
+        msg_size = struct.unpack("I", packet_msg_size)[0]
 
         # Continue lendo os dados da mensagem até que todos os dados sejam lidos
         while len(data) < msg_size:
@@ -83,6 +83,8 @@ def aguardando_solicitação_videochamada(segundos, client_socket):
 
     print(f"Timer iniciado para {segundos} segundos.")
 
+    resposta_videochamada = 'n'
+
     while tempo_restante > 0:
         ready, _, _ = select.select([client_socket], [], [], 1)  # Espera por 1 segundo
         if ready:
@@ -103,6 +105,10 @@ def aguardando_solicitação_videochamada(segundos, client_socket):
             tempo_restante -= 1
 
     print("Estado de aguardando solicitação de chamada encerrado!")
+    if resposta_videochamada == 'n':
+        return False
+    else:
+        return True
 
 def main():
     # Criação do socket do cliente a cada iteração
@@ -156,10 +162,14 @@ def main():
             destination_name = input("Digite o nome do usuário que deseja chamar: ")
             transmitir_video = send_invite_request(client_socket, destination_name)
             if transmitir_video:
-                send_video(client_socket)
+                send_video(client_socket, destination_name)
         elif choice == "5":
             # Opção 6: Aguarda solicitacao de video chamada
-            aguardando_solicitação_videochamada(60, client_socket)
+            aceitou_videochamada = aguardando_solicitação_videochamada(60, client_socket)
+            if aceitou_videochamada:
+                receive_video(client_socket)
+            else:
+                break
         elif choice == "6":
             # Opção 6: Sair
             break

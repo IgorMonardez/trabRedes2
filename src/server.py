@@ -18,8 +18,8 @@ portas_possiveis = [7074, 7073, 7072, 7071, 7070]
 # Função para lidar com cada cliente em threads separadas
 def handle_client(client_socket):
     while True:
-        # Caso padrão: Está chegando uma transmissão de vídeo
-        receive_video(client_socket)
+        # Caso padrão: Está chegando uma transmissão de vídeo, logo envio o video para o cliente de destino
+        transmite_video(client_socket)
 
         client_data = client_socket.recv(1024).decode()
         if not client_data:
@@ -91,7 +91,7 @@ def handle_client(client_socket):
         else:
             print("Mensagem inválida do cliente.")
 
-def receive_video(client_socket):
+def transmite_video(client_socket):
     data = b""
 
     while True:
@@ -116,11 +116,22 @@ def receive_video(client_socket):
         # Descompacte os dados da mensagem e reconstrua o quadro
         frame_data = data[:msg_size]
         data = data[msg_size:]
-        frame = pickle.loads(frame_data)
+        payload = pickle.loads(frame_data)
 
-        # Exibe o quadro recebido
-        cv2.imshow("Recebendo", frame)
-        if(cv2.waitKey(1) & 0xFF == ord('q')):
+        username = payload["username"]
+        frame = payload["frame"]
+
+        # # Exibe o quadro recebido
+        # cv2.imshow("Recebendo", frame)
+        # if(cv2.waitKey(1) & 0xFF == ord('q')):
+        #     break
+
+        # Encaminha o quadro para o segundo cliente
+        try:
+            client_destination_socket = query_user_socket(username)
+            client_destination_socket.sendall(packet_msg_size + frame_data)
+        except socket.error as e:
+            print(f"Erro na transmissão de video: {e}")
             break
 
     # Libere os recursos
