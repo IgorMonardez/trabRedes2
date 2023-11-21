@@ -66,8 +66,8 @@ def handle_client(client_socket):
                 client_socket.send("Usuário não encontrado.".encode())
             else:
                 cliente_socket_destino = query_user_socket(destinario_nome)
-                send_invite_to_client(cliente_socket_destino)
-                client_socket.send("Requisição para o usuário enviada.".encode())
+                resposta_usuario = send_invite_to_client(cliente_socket_destino)
+                client_socket.send(f"Resposta do usuário: {resposta_usuario}".encode())
 
             #print(f"Recebido pedido de videochamada de {remetente_name} para {destinario_nome}")
         else:
@@ -75,8 +75,10 @@ def handle_client(client_socket):
 
 def send_invite_to_client(client_destino):
     try:
-        message = "Mensagem recebida com sucesso."
+        message = "Solicitação de videochamada recebida, deseja aceitar a requisição? (s/n) "
         client_destino.send(message.encode())
+        resposta_usuario = client_destino.recv(1024).decode()
+        return resposta_usuario
     except Exception as e:
         print(e)
 

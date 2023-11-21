@@ -1,6 +1,5 @@
 import select
 import socket
-import time
 
 def send_invite_request(client_socket, server_address, client_name):
     try:
@@ -29,7 +28,8 @@ def waiting_for_request(seconds, client_socket):
         if ready:
             response_from_server = client_socket.recv(1024).decode()
             if response_from_server:
-                print(response_from_server)
+                resposta_videochamada = input(response_from_server).lower()
+                client_socket.send(resposta_videochamada)
         else:
             if remaining_time % interval == 0:
                 print(f"{remaining_time} segundos restantes...")
