@@ -16,7 +16,7 @@ def send_video(client_socket):
         data = pickle.dumps(frame)
 
         # Empacota os dados para envio
-        message_size = struct.pack("L", len(data))
+        message_size = struct.pack("I", len(data))
         client_socket.sendall(message_size + data)
 
         if (cv2.waitKey(1) & 0xFF == ord('q')):

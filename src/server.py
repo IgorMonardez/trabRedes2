@@ -107,7 +107,7 @@ def receive_video(client_socket):
         # Leia os dados da mensagem
         packet_msg_size = data[:4]
         data = data[4:]
-        msg_size = struct.unpack("L", packet_msg_size)[0]
+        msg_size = struct.unpack("I", packet_msg_size)[0]
 
         # Continue lendo os dados da mensagem até que todos os dados sejam lidos
         while len(data) < msg_size:
