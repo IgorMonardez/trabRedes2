@@ -20,7 +20,10 @@ def handle_client(client_socket):
             break
         client_info = client_data.split(',')
         client_ip = client_address[0]
-        client_name = client_info[1]
+        if len(client_info) > 1 and client_info[1] is not None:
+            client_name = client_info[1]
+        else:
+            client_name = ""
         # Verifica o tipo de mensagem recebida
         if client_info[0] == "REGISTER":
             # Registro de novo usuário
@@ -67,16 +70,23 @@ def handle_client(client_socket):
                 client_socket.send("Usuário não encontrado.".encode())
             else:
                 cliente_socket_destino = query_user_socket(destinario_nome)
-                resposta_usuario = send_invite_to_client(cliente_socket_destino)
+                nome_cliente_origem = get_username_by_socket(client_socket)
+                resposta_usuario = send_invite_to_client(cliente_socket_destino, nome_cliente_origem)
                 client_socket.send(resposta_usuario.encode())
 
             #print(f"Recebido pedido de videochamada de {remetente_name} para {destinario_nome}")
+        elif client_info[0] == "RESPONSE_INVITE_REQUEST":
+            resposta = client_info[1]
+            nome_cliente_origem = client_info[2]
+
+            cliente_socket_origem = query_user_socket(nome_cliente_origem)
+            cliente_socket_origem.send(resposta.encode())
         else:
             print("Mensagem inválida do cliente.")
 
-def send_invite_to_client(client_destino):
+def send_invite_to_client(client_destino, nome_cliente_origem):
     try:
-        message = "Solicitação de videochamada recebida, deseja aceitar a requisição? (s/n): "
+        message = f"Solicitação de videochamada recebida, deseja aceitar a requisição? (s/n): -{nome_cliente_origem}"
         client_destino.send(message.encode())
         resposta_usuario = client_destino.recv(1024).decode()
         return resposta_usuario
@@ -105,6 +115,14 @@ def query_user_socket(username):
         if value.get('Nome') == username:
             return key
     return 0
+
+def get_username_by_socket(client_socket):
+    client_ip = client_socket.getpeername()[0]
+    for key, value in clients.items():
+        teste = key.getpeername()[0]
+        if teste == client_ip:
+            return value.get('Nome')
+    return None
 
 # Começa a ouvir por conexões
 server_socket.listen(5)
