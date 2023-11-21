@@ -8,7 +8,7 @@ import cv2
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Define o endereço e porta do servidor
-server_address = ('0.0.0.0', 5000)
+server_address = ('0.0.0.0', 7000)
 server_socket.bind(server_address)
 
 # Inicializa a tabela dinâmica para armazenar informações dos clientes
@@ -16,7 +16,7 @@ clients = {}
 conexoes = {}
 portas_possiveis = [7074, 7073, 7072, 7071, 7070]
 
-# Função para lidar com cada cliente em threads separadas
+# Função para lidar com cada cnte em threads separadas
 def handle_client(client_socket):
     while True:
         # Caso padrão: Está chegando uma transmissão de vídeo, logo envio o video para o cliente de destino

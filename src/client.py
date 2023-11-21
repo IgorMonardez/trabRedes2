@@ -11,7 +11,21 @@ destination_port = 0
 def start_video_call(client_socket):
 
     try:
-        print("Conectado ao peer para uma video call.")
+        print("Iniciando uma videocall.")
+
+        cam = cv2.VideoCapture(0)
+
+        while True:
+            ret, frame = cam.read()
+            serialized_frame = pickle.dumps(frame)
+            message = struct.pack("Q", len(serialized_frame)) + serialized_frame
+            client_socket.sendall(message)
+
+            cv2.imshow('Video Call', frame)
+            key = cv2.waitKey(1) & 0xFF
+            if key == ord('q'):
+                client_socket.close()
+                break
 
     except Exception as e:
         print(f"Error ao iniciar video call: {e}")
@@ -84,7 +98,7 @@ def main():
 
     # TODO: Define o endereço e porta do servidor
     # TODO: IP ICREDESEMFIO - 10.10.11.102 - Notebook Caio
-    server_address = ("192.168.1.15", 5000)
+    server_address = ("192.168.1.15", 7000)
 
     # Conecta ao servidor
     client_socket.connect(server_address)
