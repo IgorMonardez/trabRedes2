@@ -21,11 +21,11 @@ def handle_client(client_socket):
         client2 = clients[1]
 
         # Envia a informação do cliente 1 para o cliente 2
-        client1_ip, client1_port = client1.getsockname()
+        client1_ip, client1_port = client1.getpeername()
         client2.send(f"{client1_ip},{client1_port}".encode())
 
         # Envia a informação do cliente 2 para o cliente 1
-        client2_ip, client2_port = client2.getsockname()
+        client2_ip, client2_port = client2.getpeername()
         client1.send(f"{client2_ip},{client2_port}".encode())
 
 # Começa a ouvir por conexões

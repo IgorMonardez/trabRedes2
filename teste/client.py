@@ -30,7 +30,19 @@ def start_streaming(server_socket, ip, port):
     print("Iniciando streaming.")
 
     response = aguadando_video_call(server_socket)
-    print(response)
+    if response:
+        ip_destino, port_destino = response.split(',')
+
+        # Cliente espera receber a imagem do outro cliente
+        server = StreamingServer(ip, port)
+        server.start_server()
+        #
+        # # Envia a imagem para o outro cliente
+        # send_video()
+
+        # response = server_socket.recv(4096).decode()
+        # print(response)
+
 
     # Mostra a câmera do cliente para ele mesmo
     cam = cv2.VideoCapture(0)
@@ -41,16 +53,6 @@ def start_streaming(server_socket, ip, port):
         cv2.imshow('Video Call', frame)
         if cv2.waitKey(1) == ord('q'):
             break
-
-        # # Cliente espera receber a imagem do outro cliente
-        # server = StreamingServer(ip, port)
-        # server.start_server()
-        #
-        # # Envia a imagem para o outro cliente
-        # send_video()
-
-        # response = server_socket.recv(4096).decode()
-        # print(response)
 
 
 def main():
