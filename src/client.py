@@ -21,6 +21,9 @@ def start_video_call(client_socket):
             # Serialize the frame
             data = pickle.dumps(frame)
 
+            # Send the length of the serialized frame
+            client_socket.sendall(struct.pack("L", len(data)))
+
             # Send the serialized frame
             client_socket.sendall(data)
 
@@ -43,9 +46,17 @@ def receive_video_call(client_socket):
         while True:
             # Receive the serialized frame
             data = b""
-            payload_size = 4096
+            payload_size = struct.unpack("L", client_socket.recv(struct.calcsize("L")))[0]
             while len(data) < payload_size:
-                data += client_socket.recv(4096)
+                packet = client_socket.recv(payload_size - len(data))
+                if not packet:
+                    return None
+                data += packet
+
+            # Check if all data has been received
+            if len(data) != payload_size:
+                print("Data not fully received. Waiting for more data...")
+                continue
 
             # Deserialize the frame
             frame = pickle.loads(data)
