@@ -5,7 +5,8 @@ import pickle
 import struct
 import threading
 
-from vidstream import StreamingServer
+from vidstream import StreamingServer, CameraClient
+
 
 def send_invite_request(client_socket, client_name):
     try:
@@ -71,24 +72,18 @@ def aguardando_solicitação_videochamada(segundos, client_socket):
     print("Estado de aguardando solicitação de chamada encerrado!")
     return resposta_videochamada
 
-def start_video_chamada(server_socket):
-    intervalo = 5
-    tempo_restante = 20
+def start_video_chamada(ip_server, port_server, ip_destino, port_destino):
+    print("Iniciando streaming.")
 
-    print(f"Timer iniciado para {tempo_restante} segundos.")
+    server = StreamingServer(ip_server, int(port_server))
+    server.start_server()
 
-    while tempo_restante > 0:
-        ready, _, _ = select.select([server_socket], [], [], 1)  #  Espera por 1 segundo
-        if ready:
-            response = server_socket.recv(4096).decode()
-            if response:
-                return response
-        else:
-            if tempo_restante % intervalo == 0:
-                print(f"{tempo_restante} segundos restantes...")
-            tempo_restante -= 1
+    # Envia a imagem para o outro cliente
+    send_video(ip_destino, int(port_destino))
 
-    return None
+def send_video(ip_destino_cliente, porta_destino_cliente):
+    camera = CameraClient(ip_destino_cliente, porta_destino_cliente)
+    camera.start_stream()
 
 def main():
     # Criação do socket do cliente a cada iteração
@@ -146,19 +141,24 @@ def main():
             ip_destino = teste_response[1]
             port_destino = int(teste_response[2])
 
+            ip_host = client_socket.getpeername()[0]
+            port_host = int(teste_response[3])
+
             if response:
-                response_teste = start_video_chamada(client_socket)
+                start_video_chamada(ip_host, port_host, ip_destino, port_destino)
         elif choice == "5":
             # Opção 6: Aguarda solicitacao de video chamada
             resposta_video_chamada = aguardando_solicitação_videochamada(60, client_socket).split(',')
             if len(resposta_video_chamada) == 4:
                 ip_destino = resposta_video_chamada[1]
                 porta_destino = resposta_video_chamada[2]
-                ip_host_camera = resposta_video_chamada[3]
+                port_host_camera = resposta_video_chamada[3]
                 print(f"Server para enviar video via vidstream: {ip_destino}, {porta_destino}. Porta para receber video: {ip_host_camera} ")
 
+                ip_host_camera = client_socket.getpeername()[0]
+
                 print("Chamada aceita. Inicie a videochamada.")
-                response = start_video_chamada(client_socket)
+                start_video_chamada(ip_host_camera, port_host_camera, ip_destino, porta_destino)
 
         elif choice == "6":
             # Opção 6: Sair
