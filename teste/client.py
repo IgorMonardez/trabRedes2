@@ -29,6 +29,9 @@ def send_video(ip_destino_cliente, porta_destino_cliente):
 def start_streaming(server_socket, ip, port):
     print("Iniciando streaming.")
 
+    response = aguadando_video_call(server_socket)
+    print(response)
+
     # Mostra a câmera do cliente para ele mesmo
     cam = cv2.VideoCapture(0)
     while True:
@@ -48,8 +51,6 @@ def start_streaming(server_socket, ip, port):
 
         # response = server_socket.recv(4096).decode()
         # print(response)
-
-        response = aguadando_video_call(server_socket)
 
 
 def main():
