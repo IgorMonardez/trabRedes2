@@ -11,11 +11,12 @@ server_socket.bind(server_address)
 
 clients = []
 
-portas = [7007, 6001]
+portas = [7007, 6001, 6002, 6003, 6004, 6005, 6006]
 
 def handle_client(client_socket):
     print("Conexão de cliente", client_address)
-    porta = portas.pop(0)
+    porta = portas[len(portas) - 1]
+    portas.remove(porta)
     client_socket.send(f"Conexão estabelecida, {porta}".encode())
     portas.pop(0)
     clients.append(client_socket)

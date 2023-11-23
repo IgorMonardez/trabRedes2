@@ -34,6 +34,7 @@ def start_streaming(server_socket, ip, port):
         ip_destino, port_destino = response.split(',')
 
         # Cliente espera receber a imagem do outro cliente
+        print(f"Server para receber video via vidstream: {ip}, {port}")
         server = StreamingServer(ip, port)
         server.start_server()
         #
