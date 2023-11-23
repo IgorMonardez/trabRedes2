@@ -14,25 +14,31 @@ server_socket.listen(5)
 def handle_client(client_socket):
     try:
         while True:
+            print("Teste 1")
             # Receive the length of the serialized frame
             data_len = struct.unpack("L", client_socket.recv(struct.calcsize("L")))[0]
 
             # Receive the serialized frame in chunks
             data = b""
             while len(data) < data_len:
+                print("Teste 1.1")
                 packet = client_socket.recv(min(data_len - len(data), 4096))
                 if not packet:
                     return None
                 data += packet
+                print("Teste 1.2")
+            print("Teste 2")
 
             # Check if all data has been received
             if len(data) != data_len:
                 print("Data not fully received. Waiting for more data...")
                 continue
 
+            print("Teste 3")
             # Deserialize the frame
             frame = pickle.loads(data)
 
+            print("Teste 4")
             # Display the frame
             cv2.imshow('Received Video', frame)
 
