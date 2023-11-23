@@ -144,7 +144,7 @@ def main():
             ip_host = client_socket.getpeername()[0]
             port_host = int(teste_response[3])
 
-            if response:
+            while response:
                 start_video_chamada(ip_host, port_host, ip_destino, port_destino)
         elif choice == "5":
             # Opção 6: Aguarda solicitacao de video chamada
