@@ -97,7 +97,7 @@ def handle_client(client_socket):
                 print("Mensagem inválida do cliente.")
         else:
             # If the data is not a known command, assume it's a video frame and handle it accordingly
-            receive_video_from_client(client_socket)
+            transmite_frames(client_socket)
 def transmite_frames(client_socket_origem, client_socket_destino):
     while True:
         # Recebe o frame do cliente que solicitou a chamada
