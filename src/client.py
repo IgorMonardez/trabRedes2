@@ -24,8 +24,9 @@ def start_video_call(client_socket):
             # Send the length of the serialized frame
             client_socket.sendall(struct.pack("L", len(data)))
 
-            # Send the serialized frame
-            client_socket.sendall(data)
+            # Send the serialized frame in chunks
+            for i in range(0, len(data), 4096):
+                client_socket.sendall(data[i:i + 4096])
 
             # Display the frame
             cv2.imshow('Video Call', frame)
@@ -44,17 +45,19 @@ def start_video_call(client_socket):
 def receive_video_call(client_socket):
     try:
         while True:
-            # Receive the serialized frame
+            # Receive the length of the serialized frame
+            data_len = struct.unpack("L", client_socket.recv(struct.calcsize("L")))[0]
+
+            # Receive the serialized frame in chunks
             data = b""
-            payload_size = struct.unpack("L", client_socket.recv(struct.calcsize("L")))[0]
-            while len(data) < payload_size:
-                packet = client_socket.recv(payload_size - len(data))
+            while len(data) < data_len:
+                packet = client_socket.recv(min(data_len - len(data), 4096))
                 if not packet:
                     return None
                 data += packet
 
             # Check if all data has been received
-            if len(data) != payload_size:
+            if len(data) != data_len:
                 print("Data not fully received. Waiting for more data...")
                 continue
 
