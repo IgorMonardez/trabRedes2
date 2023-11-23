@@ -23,7 +23,7 @@ def send_invite_request(client_socket, client_name):
 
         if response == "s":
             print("Chamada aceita. Inicie a videochamada.")
-            msg = f"True,{destination_ip},{destination_port},{server_host_port}",
+            msg = f"True,{destination_ip},{destination_port},{server_host_port}"
             return msg
         elif response == "n":
             print("Chamada recusada pelo destinatário.")
@@ -140,10 +140,11 @@ def main():
         elif choice == "4":
             # Opção 4: Solicitar videochamada
             destination_name = input("Digite o nome do usuário que deseja chamar: ")
-            transmitir_video_response = send_invite_request(client_socket, destination_name).split(',')
-            response = bool(transmitir_video_response[0])
-            ip_destino = transmitir_video_response[1]
-            port_destino = int(transmitir_video_response[2])
+            transmitir_video_response = send_invite_request(client_socket, destination_name)
+            teste_response = transmitir_video_response.split(',')
+            response = bool(teste_response[0])
+            ip_destino = teste_response[1]
+            port_destino = int(teste_response[2])
 
             if response:
                 response_teste = start_video_chamada(client_socket)
