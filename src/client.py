@@ -5,6 +5,8 @@ import pickle
 import struct
 import threading
 
+from vidstream import StreamingServer
+
 destination_ip = ""
 destination_port = 0
 
@@ -62,6 +64,26 @@ def aguardando_solicitação_videochamada(segundos, client_socket):
 
     print("Estado de aguardando solicitação de chamada encerrado!")
     return resposta_videochamada
+
+def teste(server_socket):
+    intervalo = 5
+    tempo_restante = 20
+
+    print(f"Timer iniciado para {tempo_restante} segundos.")
+
+    while tempo_restante > 0:
+        ready, _, _ = select.select([server_socket], [], [], 1)  #  Espera por 1 segundo
+        if ready:
+            response = server_socket.recv(4096).decode()
+            if response:
+                return response
+        else:
+            if tempo_restante % intervalo == 0:
+                print(f"{tempo_restante} segundos restantes...")
+            tempo_restante -= 1
+
+    return None
+
 def main():
     # Criação do socket do cliente a cada iteração
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -113,9 +135,15 @@ def main():
             # Opção 4: Solicitar videochamada
             destination_name = input("Digite o nome do usuário que deseja chamar: ")
             transmitir_video = send_invite_request(client_socket, destination_name)
+            if transmitir_video:
+                teste(client_socket)
         elif choice == "5":
             # Opção 6: Aguarda solicitacao de video chamada
             resposta_video_chamada = aguardando_solicitação_videochamada(60, client_socket)
+            if resposta_video_chamada == 's':
+                print("Chamada aceita. Inicie a videochamada.")
+                teste(client_socket)
+
         elif choice == "6":
             # Opção 6: Sair
             break
