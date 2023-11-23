@@ -3,7 +3,7 @@ import socket
 from vidstream import CameraClient, StreamingServer
 import cv2
 
-def aguadando_video_call(server_socket):
+def aguardando_video_call(server_socket):
     intervalo = 5
     tempo_restante = 20
 
@@ -29,7 +29,7 @@ def send_video(ip_destino_cliente, porta_destino_cliente):
 def start_streaming(server_socket, ip, port):
     print("Iniciando streaming.")
 
-    response = aguadando_video_call(server_socket)
+    response = aguardando_video_call(server_socket)
     if response:
         ip_destino, port_destino = response.split(',')
 
@@ -40,7 +40,7 @@ def start_streaming(server_socket, ip, port):
         server.start_server()
 
         # Envia a imagem para o outro cliente
-        # send_video()
+        send_video(ip_destino, port_destino)
 
         # response = server_socket.recv(4096).decode()
         # print(response)

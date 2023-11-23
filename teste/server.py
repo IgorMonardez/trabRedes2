@@ -1,6 +1,5 @@
 import socket
 import threading
-from vidstream import StreamingServer
 
 # Criação do socket do servidor
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
