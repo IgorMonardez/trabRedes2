@@ -21,10 +21,12 @@ def send_invite_request(client_socket, client_name):
 
         if response == "s":
             print("Chamada aceita. Inicie a videochamada.")
-            return True
+            msg = f"True,{destination_ip},{destination_port}"
+            return msg
         elif response == "n":
             print("Chamada recusada pelo destinatário.")
-            return False
+            msg = f"False,{destination_ip},{destination_port}"
+            return msg
         else:
             print(response)
             return False
@@ -135,16 +137,24 @@ def main():
         elif choice == "4":
             # Opção 4: Solicitar videochamada
             destination_name = input("Digite o nome do usuário que deseja chamar: ")
-            transmitir_video = send_invite_request(client_socket, destination_name)
-            if transmitir_video:
-                response = start_video_chamada(client_socket)
+            transmitir_video_response = send_invite_request(client_socket, destination_name).split(',')
+            response = bool(transmitir_video_response[0])
+            ip_destino = transmitir_video_response[1]
+            port_destino = int(transmitir_video_response[2])
+
+            ip_host_camera = client_socket.getpeername()[0]
+
+            if response:
+                response_teste = start_video_chamada(client_socket)
         elif choice == "5":
             # Opção 6: Aguarda solicitacao de video chamada
             resposta_video_chamada = aguardando_solicitação_videochamada(60, client_socket).split(',')
             if len(resposta_video_chamada) == 3:
-                ip = resposta_video_chamada[1]
-                porta = resposta_video_chamada[2]
-                print(f"Server para enviar video via vidstream: {ip}, {porta}")
+                ip_destino = resposta_video_chamada[1]
+                porta_destino = resposta_video_chamada[2]
+                print(f"Server para enviar video via vidstream: {ip_destino}, {porta_destino}")
+
+                ip_host_camera = client_socket.getpeername()[0]
 
                 print("Chamada aceita. Inicie a videochamada.")
                 response = start_video_chamada(client_socket)

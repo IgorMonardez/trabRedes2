@@ -81,6 +81,7 @@ def handle_client(client_socket):
                     nome_cliente_origem = get_username_by_socket(client_socket)
                     ip = client_socket.getpeername()[0]
                     porta = get_porta_by_socket(client_socket)
+
                     send_invite_to_client(cliente_socket_destino, nome_cliente_origem, ip, porta)
 
             elif client_info[0] == "RESPONSE_INVITE_REQUEST":
