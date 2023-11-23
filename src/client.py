@@ -17,15 +17,17 @@ def send_invite_request(client_socket, client_name):
         destination_ip = response_info[1]
         destination_port = int(response_info[2])
 
-        print(f"Server para receber video via vidstream: {destination_ip}, {destination_port}")
+        server_host_port = int(response_info[3])
+
+        print(f"Server para enviar video via vidstream: {destination_ip}, {destination_port}. Porta para receber video: {server_host_port}")
 
         if response == "s":
             print("Chamada aceita. Inicie a videochamada.")
-            msg = f"True,{destination_ip},{destination_port}"
+            msg = f"True,{destination_ip},{destination_port},{server_host_port}",
             return msg
         elif response == "n":
             print("Chamada recusada pelo destinatário.")
-            msg = f"False,{destination_ip},{destination_port}"
+            msg = f"False,{destination_ip},{destination_port},{server_host_port}"
             return msg
         else:
             print(response)
@@ -53,12 +55,13 @@ def aguardando_solicitação_videochamada(segundos, client_socket):
                 resposta_servidor_nome_cliente_origem = resposta_servidor_info[1]
                 resposta_ip = resposta_servidor_info[2]
                 respota_porta = resposta_servidor_info[3]
+                respota_porta_host = resposta_servidor_info[4]
 
                 resposta_videochamada = input(resposta_servidor_mensagem).lower() # TODO: Colocar uma verificação para o usuário usar apenas 's' ou 'n' como input
 
                 resposta_final = f"{resposta_servidor_cabeçalho},{resposta_videochamada},{resposta_servidor_nome_cliente_origem}"
                 client_socket.send(resposta_final.encode())
-                msg = f"{resposta_videochamada},{resposta_ip},{respota_porta}"
+                msg = f"{resposta_videochamada},{resposta_ip},{respota_porta}, {respota_porta_host}"
                 return msg
         else:
             if tempo_restante % intervalo == 0:
@@ -142,8 +145,6 @@ def main():
             ip_destino = transmitir_video_response[1]
             port_destino = int(transmitir_video_response[2])
 
-            ip_host_camera = client_socket.getpeername()[0]
-
             if response:
                 response_teste = start_video_chamada(client_socket)
         elif choice == "5":
@@ -152,9 +153,8 @@ def main():
             if len(resposta_video_chamada) == 3:
                 ip_destino = resposta_video_chamada[1]
                 porta_destino = resposta_video_chamada[2]
-                print(f"Server para enviar video via vidstream: {ip_destino}, {porta_destino}")
-
-                ip_host_camera = client_socket.getpeername()[0]
+                ip_host_camera = resposta_video_chamada[3]
+                print(f"Server para enviar video via vidstream: {ip_destino}, {porta_destino}. Porta para receber video: {ip_host_camera} ")
 
                 print("Chamada aceita. Inicie a videochamada.")
                 response = start_video_chamada(client_socket)
