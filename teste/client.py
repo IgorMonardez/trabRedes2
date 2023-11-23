@@ -40,7 +40,7 @@ def start_streaming(server_socket, ip, port):
         server.start_server()
 
         # Envia a imagem para o outro cliente
-        send_video(ip_destino, port_destino)
+        send_video(ip_destino, int(port_destino))
 
         # response = server_socket.recv(4096).decode()
         # print(response)
