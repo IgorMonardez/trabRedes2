@@ -42,20 +42,6 @@ def start_streaming(server_socket, ip, port):
         # Envia a imagem para o outro cliente
         send_video(ip_destino, int(port_destino))
 
-        # response = server_socket.recv(4096).decode()
-        # print(response)
-
-
-    # Mostra a câmera do cliente para ele mesmo
-    cam = cv2.VideoCapture(0)
-    while True:
-        ret, frame = cam.read()
-
-        # Display the frame
-        cv2.imshow('Video Call', frame)
-        if cv2.waitKey(1) == ord('q'):
-            break
-
 
 def main():
     # Criação do socket do cliente
