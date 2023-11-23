@@ -50,5 +50,6 @@ def handle_client(client_socket):
 while True:
     # Accept a new client and handle it in a new thread
     client_socket, client_address = server_socket.accept()
+    print(f"Accepted connection from {client_address}")
     client_thread = threading.Thread(target=handle_client, args=(client_socket,))
     client_thread.start()

@@ -7,7 +7,11 @@ import struct
 
 # Create a socket client
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client_socket.connect(('192.168.1.15', 7000))
+try:
+    client_socket.connect(('192.168.1.15', 7000))
+    print("Connected to the server")
+except Exception as e:
+    print(f"Failed to connect to the server: {e}")
 
 # Open the webcam and start capturing video
 cap = cv2.VideoCapture(0)
