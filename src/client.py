@@ -8,76 +8,6 @@ import threading
 destination_ip = ""
 destination_port = 0
 
-def start_video_call(client_socket):
-
-    try:
-        print("Iniciando uma videocall.")
-
-        cam = cv2.VideoCapture(0)
-
-        while True:
-            ret, frame = cam.read()
-
-            # Serialize the frame
-            data = pickle.dumps(frame)
-
-            # Send the length of the serialized frame
-            client_socket.sendall(struct.pack("L", len(data)))
-
-            # Send the serialized frame in chunks
-            for i in range(0, len(data), 4096):
-                client_socket.sendall(data[i:i + 4096])
-
-            # Display the frame
-            cv2.imshow('Video Call', frame)
-            if cv2.waitKey(1) == ord('q'):
-                break
-
-    except Exception as e:
-        print(f"Error ao iniciar video call: {e}")
-
-    finally:
-        cam.release()
-        cv2.destroyAllWindows()
-        client_socket.close()
-        print("Video call finalizada.")
-
-def receive_video_call(client_socket):
-    try:
-        while True:
-            # Receive the length of the serialized frame
-            data_len = struct.unpack("L", client_socket.recv(struct.calcsize("L")))[0]
-
-            # Receive the serialized frame in chunks
-            data = b""
-            while len(data) < data_len:
-                packet = client_socket.recv(min(data_len - len(data), 4096))
-                if not packet:
-                    return None
-                data += packet
-
-            # Check if all data has been received
-            if len(data) != data_len:
-                print("Data not fully received. Waiting for more data...")
-                continue
-
-            # Deserialize the frame
-            frame = pickle.loads(data)
-
-            # Display the frame
-            cv2.imshow('Received Video', frame)
-
-            if cv2.waitKey(1) == ord('q'):
-                break
-
-    except Exception as e:
-        print(f"Error ao receber video call: {e}")
-
-    finally:
-        cv2.destroyAllWindows()
-        client_socket.close()
-        print("Video call finalizada.")
-
 def send_invite_request(client_socket, client_name):
     try:
         message = f"INVITE_REQUEST, {client_name}"
@@ -131,11 +61,7 @@ def aguardando_solicitação_videochamada(segundos, client_socket):
             tempo_restante -= 1
 
     print("Estado de aguardando solicitação de chamada encerrado!")
-    if resposta_videochamada == 'n':
-        return False
-    else:
-        return True
-
+    return resposta_videochamada
 def main():
     # Criação do socket do cliente a cada iteração
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -187,14 +113,9 @@ def main():
             # Opção 4: Solicitar videochamada
             destination_name = input("Digite o nome do usuário que deseja chamar: ")
             transmitir_video = send_invite_request(client_socket, destination_name)
-            if transmitir_video:
-                start_video_call(client_socket)
         elif choice == "5":
             # Opção 6: Aguarda solicitacao de video chamada
             resposta_video_chamada = aguardando_solicitação_videochamada(60, client_socket)
-            if resposta_video_chamada == 's':
-                video_call_thread = threading.Thread(target=receive_video_call, args=(client_socket,))
-                video_call_thread.start()
         elif choice == "6":
             # Opção 6: Sair
             break
