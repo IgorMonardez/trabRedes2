@@ -1,61 +1,12 @@
-import pickle
-import socket
+from vidstream import StreamingServer
 import threading
-import cv2
-import numpy as np
-import pyaudio
-import struct
 
-# Create a socket server
-server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_socket.bind(('0.0.0.0', 7000))
-server_socket.listen(5)
+# Create a streaming server
+server = StreamingServer('localhost', 9990)
 
-def handle_client(client_socket):
-    try:
-        while True:
-            print("Teste 1")
-            # Receive the length of the serialized frame
-            data_len = struct.unpack("L", client_socket.recv(struct.calcsize("L")))[0]
+# Start the server in a new thread
+t1 = threading.Thread(target=server.start_server)
+t1.start()
 
-            # Receive the serialized frame in chunks
-            data = b""
-            while len(data) < data_len:
-                print("Teste 1.1")
-                packet = client_socket.recv(min(data_len - len(data), 4096))
-                if not packet:
-                    return None
-                data += packet
-                print("Teste 1.2")
-            print("Teste 2")
-
-            # Check if all data has been received
-            if len(data) != data_len:
-                print("Data not fully received. Waiting for more data...")
-                continue
-
-            print("Teste 3")
-            # Deserialize the frame
-            frame = pickle.loads(data)
-
-            print("Teste 4")
-            # Display the frame
-            cv2.imshow('Received Video', frame)
-
-            if cv2.waitKey(1) == ord('q'):
-                break
-
-    except Exception as e:
-        print(f"Error while handling client: {e}")
-
-    finally:
-        cv2.destroyAllWindows()
-        client_socket.close()
-        print("Client handling finished.")
-
-while True:
-    # Accept a new client and handle it in a new thread
-    client_socket, client_address = server_socket.accept()
-    print(f"Accepted connection from {client_address}")
-    client_thread = threading.Thread(target=handle_client, args=(client_socket,))
-    client_thread.start()
+# The server is now running in a separate thread.
+# The server will receive video from the clients and send it to all connected clients.
