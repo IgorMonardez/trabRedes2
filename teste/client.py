@@ -35,10 +35,11 @@ def start_streaming(server_socket, ip, port):
 
         # Cliente espera receber a imagem do outro cliente
         print(f"Server para receber video via vidstream: {ip}, {port}")
+        print(f"Server para enviar video via vidstream: {ip_destino}, {port_destino}")
         server = StreamingServer(ip, port)
         server.start_server()
-        #
-        # # Envia a imagem para o outro cliente
+
+        # Envia a imagem para o outro cliente
         # send_video()
 
         # response = server_socket.recv(4096).decode()
