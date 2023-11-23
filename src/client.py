@@ -140,7 +140,7 @@ def main():
                 response = start_video_chamada(client_socket)
         elif choice == "5":
             # Opção 6: Aguarda solicitacao de video chamada
-            resposta_video_chamada = aguardando_solicitação_videochamada(60, client_socket).split('')
+            resposta_video_chamada = aguardando_solicitação_videochamada(60, client_socket).split(',')
             if len(resposta_video_chamada) == 3:
                 ip = resposta_video_chamada[1]
                 porta = resposta_video_chamada[2]
