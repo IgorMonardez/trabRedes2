@@ -21,7 +21,7 @@ while True:
 
     # Serialize the video and audio frames
     video_data = pickle.dumps(frame)
-    # audio_data = pickle.dumps(audio_frame)
+    print("Serialized a frame")
 
     # Send the length of the serialized video frame
     client_socket.sendall(struct.pack("L", len(video_data)))
@@ -29,3 +29,4 @@ while True:
     # Send the serialized video frame in chunks
     for i in range(0, len(video_data), 4096):
         client_socket.sendall(video_data[i:i + 4096])
+        print("Sent a chunk of the frame")
