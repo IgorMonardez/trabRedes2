@@ -16,6 +16,18 @@ def handle_client(client_socket):
     client_socket.send("Conexão estabelecida".encode())
     clients.append(client_socket)
 
+    if len(clients) == 2:
+        client1 = clients[0]
+        client2 = clients[1]
+
+        # Envia a informação do cliente 1 para o cliente 2
+        client1_ip, client1_port = client1.getsockname()
+        client2.send(f"{client1_ip},{client1_port}".encode())
+
+        # Envia a informação do cliente 2 para o cliente 1
+        client2_ip, client2_port = client2.getsockname()
+        client1.send(f"{client2_ip},{client2_port}".encode())
+
 # Começa a ouvir por conexões
 server_socket.listen(5)
 print("Servidor de Videoconferência iniciado.")
