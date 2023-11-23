@@ -151,7 +151,7 @@ def main():
         elif choice == "5":
             # Opção 6: Aguarda solicitacao de video chamada
             resposta_video_chamada = aguardando_solicitação_videochamada(60, client_socket).split(',')
-            if len(resposta_video_chamada) == 3:
+            if len(resposta_video_chamada) == 4:
                 ip_destino = resposta_video_chamada[1]
                 porta_destino = resposta_video_chamada[2]
                 ip_host_camera = resposta_video_chamada[3]
