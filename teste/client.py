@@ -1,6 +1,6 @@
 import select
 import socket
-from vidstream import CameraClient, StreamingServer
+from vidstream import StreamingServer, CameraClient
 import cv2
 
 def aguardando_video_call(server_socket):
@@ -42,23 +42,13 @@ def start_streaming(server_socket, ip, port):
         # Envia a imagem para o outro cliente
         send_video(ip_destino, int(port_destino))
 
-    # Mostra a câmera do cliente para ele mesmo
-    cam = cv2.VideoCapture(0)
-    while True:
-        ret, frame = cam.read()
-
-        # Display the frame
-        cv2.imshow('Video Call', frame)
-        if cv2.waitKey(1) == ord('q'):
-            break
-
 
 def main():
     # Criação do socket do cliente
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     # Endereço do servidor
-    server_address = ("192.168.1.15", 7000)
+    server_address = ("192.168.1.15", 5000)
 
     # Conecta ao servidor
     client_socket.connect(server_address)
