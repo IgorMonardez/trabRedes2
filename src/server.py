@@ -93,8 +93,18 @@ def handle_client(client_socket):
 
             msg_final = f"{resposta_usuario},{destino_ip},{destino_port}"
             cliente_socket_origem.send(msg_final.encode())
+            if resposta_usuario == 's':
+                transmite_frames(cliente_socket_origem, client_socket)
         else:
             print("Mensagem inválida do cliente.")
+
+def transmite_frames(client_socket_origem, client_socket_destino):
+    while True:
+        # Recebe o frame do cliente que solicitou a chamada
+        data = client_socket_origem.recv(4096)
+
+        # Encaminha o frame do cliente que solicitou a chamada para o cliente que recebeu a chamada
+        client_socket_destino.sendall(data)
 
 def send_invite_to_client(client_destino, nome_cliente_origem):
     try:

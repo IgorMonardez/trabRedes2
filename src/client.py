@@ -18,6 +18,12 @@ def start_video_call(client_socket):
         while True:
             ret, frame = cam.read()
 
+            # Serialize the frame
+            data = pickle.dumps(frame)
+
+            # Send the serialized frame
+            client_socket.sendall(data)
+
             # Display the frame
             cv2.imshow('Video Call', frame)
             if cv2.waitKey(1) == ord('q'):
@@ -28,6 +34,32 @@ def start_video_call(client_socket):
 
     finally:
         cam.release()
+        cv2.destroyAllWindows()
+        client_socket.close()
+        print("Video call finalizada.")
+
+def receive_video_call(client_socket):
+    try:
+        while True:
+            # Receive the serialized frame
+            data = b""
+            payload_size = 4096
+            while len(data) < payload_size:
+                data += client_socket.recv(4096)
+
+            # Deserialize the frame
+            frame = pickle.loads(data)
+
+            # Display the frame
+            cv2.imshow('Received Video', frame)
+
+            if cv2.waitKey(1) == ord('q'):
+                break
+
+    except Exception as e:
+        print(f"Error ao receber video call: {e}")
+
+    finally:
         cv2.destroyAllWindows()
         client_socket.close()
         print("Video call finalizada.")
@@ -78,7 +110,7 @@ def aguardando_solicitação_videochamada(segundos, client_socket):
 
                 resposta_final = f"{resposta_servidor_cabeçalho},{resposta_videochamada},{resposta_servidor_nome_cliente_origem}"
                 client_socket.send(resposta_final.encode())
-                break
+                return resposta_videochamada
         else:
             if tempo_restante % intervalo == 0:
                 print(f"{tempo_restante} segundos restantes...")
@@ -145,7 +177,10 @@ def main():
                 start_video_call(client_socket)
         elif choice == "5":
             # Opção 6: Aguarda solicitacao de video chamada
-            aguardando_solicitação_videochamada(60, client_socket)
+            resposta_video_chamada = aguardando_solicitação_videochamada(60, client_socket)
+            if resposta_video_chamada == 's':
+                video_call_thread = threading.Thread(target=receive_video_call, args=(client_socket,))
+                video_call_thread.start()
         elif choice == "6":
             # Opção 6: Sair
             break
