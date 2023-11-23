@@ -153,7 +153,7 @@ def main():
                 ip_destino = resposta_video_chamada[1]
                 porta_destino = resposta_video_chamada[2]
                 port_host_camera = resposta_video_chamada[3]
-                print(f"Server para enviar video via vidstream: {ip_destino}, {porta_destino}. Porta para receber video: {ip_host_camera} ")
+                print(f"Server para enviar video via vidstream: {ip_destino}, {porta_destino}. Porta para receber video: {port_host_camera} ")
 
                 ip_host_camera = client_socket.getpeername()[0]
 
