@@ -11,9 +11,13 @@ server_socket.bind(server_address)
 
 clients = []
 
+portas = [7007, 6001]
+
 def handle_client(client_socket):
     print("Conexão de cliente", client_address)
-    client_socket.send("Conexão estabelecida".encode())
+    porta = portas.pop(0)
+    client_socket.send(f"Conexão estabelecida, {porta}".encode())
+    portas.pop(0)
     clients.append(client_socket)
 
     if len(clients) == 2:

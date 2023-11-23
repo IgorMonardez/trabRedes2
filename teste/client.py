@@ -66,10 +66,11 @@ def main():
     client_socket.connect(server_address)
 
     while True:
-        response_from_server = client_socket.recv(4096).decode()
+        response_from_server = client_socket.recv(4096).decode().split(',')
         if response_from_server:
-            print(response_from_server)
-            ip_client , port_client = client_socket.getsockname()
+            print(response_from_server[0])
+            ip_client = client_socket.getsockname()[0]
+            port_client = int(response_from_server[1])
             start_streaming(client_socket, ip_client, port_client)
 
 if __name__ == "__main__":
