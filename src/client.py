@@ -7,9 +7,6 @@ import threading
 
 from vidstream import StreamingServer
 
-destination_ip = ""
-destination_port = 0
-
 def send_invite_request(client_socket, client_name):
     try:
         message = f"INVITE_REQUEST, {client_name}"
@@ -17,10 +14,10 @@ def send_invite_request(client_socket, client_name):
         response_info = client_socket.recv(1024).decode().split(',')
 
         response = response_info[0]
-        global destination_ip
-        global destination_port
         destination_ip = response_info[1]
         destination_port = int(response_info[2])
+
+        print(f"Server para receber video via vidstream: {destination_ip}, {destination_port}")
 
         if response == "s":
             print("Chamada aceita. Inicie a videochamada.")
@@ -52,11 +49,15 @@ def aguardando_solicitação_videochamada(segundos, client_socket):
                 resposta_servidor_cabeçalho = "RESPONSE_INVITE_REQUEST"
                 resposta_servidor_mensagem = resposta_servidor_info[0]
                 resposta_servidor_nome_cliente_origem = resposta_servidor_info[1]
+                resposta_ip = resposta_servidor_info[2]
+                respota_porta = resposta_servidor_info[3]
+
                 resposta_videochamada = input(resposta_servidor_mensagem).lower() # TODO: Colocar uma verificação para o usuário usar apenas 's' ou 'n' como input
 
                 resposta_final = f"{resposta_servidor_cabeçalho},{resposta_videochamada},{resposta_servidor_nome_cliente_origem}"
                 client_socket.send(resposta_final.encode())
-                return resposta_videochamada
+                msg = f"{resposta_videochamada},{resposta_ip},{respota_porta}"
+                return msg
         else:
             if tempo_restante % intervalo == 0:
                 print(f"{tempo_restante} segundos restantes...")
@@ -65,7 +66,7 @@ def aguardando_solicitação_videochamada(segundos, client_socket):
     print("Estado de aguardando solicitação de chamada encerrado!")
     return resposta_videochamada
 
-def teste(server_socket):
+def start_video_chamada(server_socket):
     intervalo = 5
     tempo_restante = 20
 
@@ -136,13 +137,17 @@ def main():
             destination_name = input("Digite o nome do usuário que deseja chamar: ")
             transmitir_video = send_invite_request(client_socket, destination_name)
             if transmitir_video:
-                teste(client_socket)
+                response = start_video_chamada(client_socket)
         elif choice == "5":
             # Opção 6: Aguarda solicitacao de video chamada
-            resposta_video_chamada = aguardando_solicitação_videochamada(60, client_socket)
-            if resposta_video_chamada == 's':
+            resposta_video_chamada = aguardando_solicitação_videochamada(60, client_socket).split('')
+            if len(resposta_video_chamada) == 3:
+                ip = resposta_video_chamada[1]
+                porta = resposta_video_chamada[2]
+                print(f"Server para enviar video via vidstream: {ip}, {porta}")
+
                 print("Chamada aceita. Inicie a videochamada.")
-                teste(client_socket)
+                response = start_video_chamada(client_socket)
 
         elif choice == "6":
             # Opção 6: Sair

@@ -79,7 +79,9 @@ def handle_client(client_socket):
                 else:
                     cliente_socket_destino = query_user_socket(destinario_nome)
                     nome_cliente_origem = get_username_by_socket(client_socket)
-                    send_invite_to_client(cliente_socket_destino, nome_cliente_origem)
+                    ip = client_socket.getpeername()[0]
+                    porta = get_porta_by_socket(client_socket)
+                    send_invite_to_client(cliente_socket_destino, nome_cliente_origem, ip, porta)
 
             elif client_info[0] == "RESPONSE_INVITE_REQUEST":
                 resposta_usuario = client_info[1] # Essa resposta vem do destino da call
@@ -87,16 +89,17 @@ def handle_client(client_socket):
 
                 # Envia para a origem da call a resposta do destino da call + informação de destino IP e destino PORT
                 cliente_socket_origem = query_user_socket(nome_cliente_origem)
-                destino_ip, destino_port = client_socket.getsockname()
+                destino_ip = client_socket.getpeername()[0]
+                destino_port = get_porta_by_socket(client_socket)
 
                 msg_final = f"{resposta_usuario},{destino_ip},{destino_port}"
                 cliente_socket_origem.send(msg_final.encode())
             else:
                 print("Mensagem inválida do cliente.")
 
-def send_invite_to_client(client_destino, nome_cliente_origem):
+def send_invite_to_client(client_destino, nome_cliente_origem, ip, port):
     try:
-        message = f"Solicitação de videochamada recebida, deseja aceitar a requisição? (s/n): -{nome_cliente_origem}"
+        message = f"Solicitação de videochamada recebida, deseja aceitar a requisição? (s/n): -{nome_cliente_origem}-{ip}-{port}"
         client_destino.send(message.encode())
     except Exception as e:
         print(e)
@@ -129,6 +132,14 @@ def get_username_by_socket(client_socket):
         teste = key.getpeername()[0]
         if teste == client_ip:
             return value.get('Nome')
+    return None
+
+def get_porta_by_socket(client_socket):
+    client_ip = client_socket.getpeername()[0]
+    for key, value in clients.items():
+        teste = key.getpeername()[0]
+        if teste == client_ip:
+            return value.get('Porta')
     return None
 
 # Começa a ouvir por conexões
