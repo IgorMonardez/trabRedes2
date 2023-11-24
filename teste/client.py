@@ -3,24 +3,9 @@ import socket
 from vidstream import StreamingServer, CameraClient
 import cv2
 
-def aguardando_video_call(server_socket):
-    intervalo = 5
-    tempo_restante = 20
+from teste.utils.user_actions import request_register, aguardando_video_call
 
-    print(f"Timer iniciado para {tempo_restante} segundos.")
-
-    while tempo_restante > 0:
-        ready, _, _ = select.select([server_socket], [], [], 1)  #  Espera por 1 segundo
-        if ready:
-            response = server_socket.recv(4096).decode()
-            if response:
-                return response
-        else:
-            if tempo_restante % intervalo == 0:
-                print(f"{tempo_restante} segundos restantes...")
-            tempo_restante -= 1
-
-    return None
+porta_receber_chamadas = 0
 
 def send_video(ip_destino_cliente, porta_destino_cliente):
     camera = CameraClient(ip_destino_cliente, porta_destino_cliente)
@@ -42,24 +27,54 @@ def start_streaming(server_socket, ip, port):
         # Envia a imagem para o outro cliente
         send_video(ip_destino, int(port_destino))
 
+def display_menu_and_return_option():
+    print("Escolha uma opção:")
+    print("1 - Registrar-se no servidor")
+    print("5 - Recebe informação de outro cliente (Beta)")
+
+    choice = input("Opção: ")
+    return choice
+
 
 def main():
     # Criação do socket do cliente
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     # Endereço do servidor
-    server_address = ("192.168.1.15", 5000)
+    server_address = ("192.168.1.15", 7000)
 
     # Conecta ao servidor
     client_socket.connect(server_address)
 
     while True:
-        response_from_server = client_socket.recv(4096).decode().split(',')
-        if response_from_server:
-            print(response_from_server[0])
-            ip_client = client_socket.getsockname()[0]
-            port_client = int(response_from_server[1])
-            start_streaming(client_socket, ip_client, port_client)
+        # Exibe um menu para o cliente escolher a ação que deseja realizar
+        choice = display_menu_and_return_option()
+
+        if choice == "1":
+            # Se registra no servidor e recebe a porta para receber chamadas
+            porta = request_register(client_socket)
+            if not porta:
+                print("Registro falhou.")
+                client_socket.close()
+            else:
+                # Registro foi bem sucedido
+                # Armazena a porta para receber chamadas
+                porta_receber_chamadas = porta
+        elif choice == "5":
+            response_from_server = client_socket.recv(4096).decode().split(',')
+            if response_from_server:
+                print(response_from_server[0])
+                ip_client = client_socket.getsockname()[0]
+                port_client = int(response_from_server[1])
+                start_streaming(client_socket, ip_client, port_client)
+
+        #
+        # response_from_server = client_socket.recv(4096).decode().split(',')
+        # if response_from_server:
+        #     print(response_from_server[0])
+        #     ip_client = client_socket.getsockname()[0]
+        #     port_client = int(response_from_server[1])
+        #     start_streaming(client_socket, ip_client, port_client)
 
 if __name__ == "__main__":
     main()
