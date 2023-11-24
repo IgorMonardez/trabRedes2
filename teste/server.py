@@ -53,11 +53,6 @@ def handle_client(client_socket):
 
                 msg = f"{header},{client_port}"
                 client_socket.send(msg.encode())
-        elif client_action == 'STREAMING_STARTED':
-            client_ip = message_from_client[1]
-            client_socket_to_send = get_socket_by_ip(client_ip, clients_list)
-            if client_socket_to_send:
-                client_socket_to_send.send("STREAMING_STARTED".encode())
 
         # (BETA) No momento que 2 clientes estiverem registrados, o servidor irá enviar a informação de um para o outro
         if len(clients_list) == 2:

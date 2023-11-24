@@ -1,5 +1,7 @@
 import select
 import socket
+import time
+
 from vidstream import StreamingServer, CameraClient
 import cv2
 
@@ -23,13 +25,7 @@ def start_streaming(client_socket, ip, port):
         server = StreamingServer(ip, port)
         server.start_server()
 
-        client_socket.send(f"STREAMING_STARTED, {ip_destino}".encode())
-
-        # Espera pela mensagem "STREAMING_STARTED" do servidor
-        while True:
-            server_response = client_socket.recv(4096).decode()
-            if server_response == "STREAMING_STARTED":
-                break
+        time.sleep(10)
 
         # Envia a imagem para o outro cliente
         send_video(ip_destino, int(port_destino))
