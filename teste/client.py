@@ -66,7 +66,7 @@ def main():
                 print(response_from_server[0])
                 ip_client = client_socket.getsockname()[0]
                 port_client = int(response_from_server[1])
-                start_streaming(client_socket, ip_client, port_client)
+                # start_streaming(client_socket, ip_client, port_client)
 
         #
         # response_from_server = client_socket.recv(4096).decode().split(',')
