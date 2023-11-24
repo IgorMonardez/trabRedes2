@@ -75,7 +75,7 @@ def aguardando_solicitação_videochamada(segundos, client_socket):
 def start_video_chamada(ip_server, port_server, ip_destino, port_destino):
     print("Iniciando streaming.")
 
-    server = StreamingServer(ip_server, int(port_server))
+    server = StreamingServer(ip_server, port_server)
     server.start_server()
 
     # Envia a imagem para o outro cliente
@@ -158,7 +158,7 @@ def main():
                 ip_host_camera = client_socket.getpeername()[0]
 
                 print("Chamada aceita. Inicie a videochamada.")
-                start_video_chamada(ip_host_camera, port_host_camera, ip_destino, porta_destino)
+                start_video_chamada(ip_host_camera, int(port_host_camera), ip_destino, int(porta_destino))
 
         elif choice == "6":
             # Opção 6: Sair
