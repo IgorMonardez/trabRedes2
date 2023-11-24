@@ -1,6 +1,6 @@
 import socket
 
-from utils.user_actions import request_register, start_streaming
+from utils.user_actions import request_register, start_streaming, search_user
 
 porta_receber_chamadas = 0
 
@@ -11,7 +11,6 @@ def display_menu_and_return_option():
 
     choice = input("Opção: ")
     return choice
-
 
 def main():
     # Criação do socket do cliente
@@ -38,6 +37,8 @@ def main():
                 # Registro foi bem sucedido
                 # Armazena a porta para receber chamadas
                 porta_receber_chamadas = porta
+        elif choice == "2":
+            response = search_user(client_socket)
         elif choice == "5":
             ip_receive_cam = client_socket.getsockname()[0]
             port_receive_cam = int(porta_receber_chamadas)

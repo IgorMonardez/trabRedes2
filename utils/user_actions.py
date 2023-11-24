@@ -20,6 +20,12 @@ def request_register(client_socket):
         print(server_message)
         return client_port
 
+def search_user(client_socket):
+    user_to_query = input("Digite o nome do usuário que deseja consultar: ")
+    query_request = f"QUERY, {user_to_query}"
+    client_socket.send(query_request.encode())
+    response = client_socket.recv(1024).decode()
+
 
 def aguardando_video_call(client_socket):
     intervalo = 5

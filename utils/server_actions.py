@@ -5,6 +5,8 @@ def register_user(clients, client_socket, client_name, portas_possiveis):
         ip_usuario = client_socket.getpeername()[0]
         print(f"Novo usuário registrado: Nome={client_name}, Porta={client_port}, IP={ip_usuario}")
         return client_port, clients[client_socket]
+    else:
+        print(f"Usuário {client_name} já está cadastrado")
 
 
 def is_user_registered(client_name, clients):
