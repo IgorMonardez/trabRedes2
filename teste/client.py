@@ -18,7 +18,6 @@ def start_streaming(server_socket, ip, port):
     if response:
         ip_destino, port_destino = response.split(',')
 
-        # Cliente espera receber a imagem do outro cliente
         print(f"Server para receber video via vidstream: {ip}, {port}")
         print(f"Server para enviar video via vidstream: {ip_destino}, {port_destino}")
         server = StreamingServer(ip, port)
@@ -30,7 +29,7 @@ def start_streaming(server_socket, ip, port):
 def display_menu_and_return_option():
     print("Escolha uma opção:")
     print("1 - Registrar-se no servidor")
-    print("5 - Recebe informação de outro cliente (Beta)")
+    print("5 - Aguarda início de videochamada com outro usuário")
 
     choice = input("Opção: ")
     return choice
@@ -38,6 +37,7 @@ def display_menu_and_return_option():
 
 def main():
     # Criação do socket do cliente
+    global porta_receber_chamadas
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     # Endereço do servidor
@@ -61,12 +61,9 @@ def main():
                 # Armazena a porta para receber chamadas
                 porta_receber_chamadas = porta
         elif choice == "5":
-            response_from_server = client_socket.recv(4096).decode().split(',')
-            if response_from_server:
-                print(response_from_server[0])
-                ip_client = client_socket.getsockname()[0]
-                port_client = int(response_from_server[1])
-                # start_streaming(client_socket, ip_client, port_client)
+            ip_receive_cam = client_socket.getpeername()[0]
+            port_receive_cam = porta_receber_chamadas
+            start_streaming(client_socket, ip_receive_cam, port_receive_cam)
 
         #
         # response_from_server = client_socket.recv(4096).decode().split(',')

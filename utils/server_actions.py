@@ -12,3 +12,8 @@ def is_user_registered(client_name, clients):
         if client_info['Nome'] == client_name:
             return True
     return False
+
+def get_client_port_by_socket(client_socket, clients):
+    for key, client_info in clients.items():
+        if key == client_socket:
+            return client_info['Porta']
