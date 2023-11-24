@@ -8,7 +8,7 @@ def register_user(clients, client_socket, client_name, portas_possiveis):
 
 
 def is_user_registered(client_name, clients):
-    for key, value in clients.items():
-        if value.get['Nome'] == client_name:
+    for client_socket, client_info in clients.items():
+        if client_info['Nome'] == client_name:
             return True
     return False

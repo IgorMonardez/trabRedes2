@@ -7,7 +7,7 @@ from utils.server_actions import register_user
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Define o endereço e porta do servidor
-server_address = ('0.0.0.0', 7000)
+server_address = ('0.0.0.0', 5000)
 server_socket.bind(server_address)
 
 clients_list = {}
