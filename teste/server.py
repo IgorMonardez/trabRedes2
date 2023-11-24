@@ -1,7 +1,7 @@
 import socket
 import threading
 
-from utils.server_actions import register_user, get_client_port_by_socket
+from utils.server_actions import register_user, get_client_port_by_socket, get_socket_by_ip
 
 # Criação do socket do servidor
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -22,8 +22,8 @@ def receive_message_from_client(client_socket):
     try:
         client_info = client_data.decode().split(',')
         client_action = client_info[0]
-        client_name = client_info[1]
-        return client_action, client_name
+        client_action_helper = client_info[1]
+        return client_action, client_action_helper
     except Exception as e:
         print(e)
         return False
@@ -37,8 +37,9 @@ def handle_client(client_socket):
         print("Erro ao receber mensagem do cliente.")
         client_socket.close()
     else:
-        client_action, client_name = message_from_client
+        client_action = message_from_client[0]
         if client_action == "REGISTER":
+            client_name = message_from_client[1]
             # Registro de novo usuário
             client_port, cliente = register_user(clients_list, client_socket, client_name, portas_possiveis)
             if not cliente:
@@ -52,6 +53,11 @@ def handle_client(client_socket):
 
                 msg = f"{header},{client_port}"
                 client_socket.send(msg.encode())
+        elif client_action == 'STREAMING_STARTED':
+            client_ip = message_from_client[1]
+            client_socket_to_send = get_socket_by_ip(client_ip, clients_list)
+            if client_socket_to_send:
+                client_socket_to_send.send("STREAMING_STARTED".encode())
 
         # (BETA) No momento que 2 clientes estiverem registrados, o servidor irá enviar a informação de um para o outro
         if len(clients_list) == 2:

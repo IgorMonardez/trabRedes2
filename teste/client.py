@@ -11,10 +11,10 @@ def send_video(ip_destino_cliente, porta_destino_cliente):
     camera = CameraClient(ip_destino_cliente, porta_destino_cliente)
     camera.start_stream()
 
-def start_streaming(server_socket, ip, port):
+def start_streaming(client_socket, ip, port):
     print("Iniciando streaming.")
 
-    response = aguardando_video_call(server_socket)
+    response = aguardando_video_call(client_socket)
     if response:
         ip_destino, port_destino = response.split(',')
 
@@ -22,6 +22,14 @@ def start_streaming(server_socket, ip, port):
         print(f"Server para enviar video via vidstream: {ip_destino}, {port_destino}")
         server = StreamingServer(ip, port)
         server.start_server()
+
+        client_socket.send(f"STREAMING_STARTED, {ip_destino}".encode())
+
+        # Espera pela mensagem "STREAMING_STARTED" do servidor
+        while True:
+            server_response = client_socket.recv(4096).decode()
+            if server_response == "STREAMING_STARTED":
+                break
 
         # Envia a imagem para o outro cliente
         send_video(ip_destino, int(port_destino))
