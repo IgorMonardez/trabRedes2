@@ -1,7 +1,7 @@
 import socket
 import threading
 
-from teste.utils.server_actions import register_user
+from utils.server_actions import register_user
 
 # Criação do socket do servidor
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

@@ -3,7 +3,7 @@ import socket
 from vidstream import StreamingServer, CameraClient
 import cv2
 
-from teste.utils.user_actions import request_register, aguardando_video_call
+from utils.user_actions import request_register, aguardando_video_call
 
 porta_receber_chamadas = 0
 
