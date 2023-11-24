@@ -15,7 +15,7 @@ server_socket.bind(server_address)
 # Inicializa a tabela dinâmica para armazenar informações dos clientes
 clients = {}
 conexoes = {}
-portas_possiveis = [7074, 7073, 7072, 7071, 7070]
+portas_possiveis = [6001, 6002, 6003, 6004, 6005]
 
 # Função para lidar com cada cnte em threads separadas
 def handle_client(client_socket):
