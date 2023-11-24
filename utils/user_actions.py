@@ -1,4 +1,7 @@
 import select
+import time
+
+from vidstream import StreamingServer, CameraClient
 
 
 def request_register(client_socket):
@@ -16,6 +19,7 @@ def request_register(client_socket):
         server_message, client_port = server_response.split(',')
         print(server_message)
         return client_port
+
 
 def aguardando_video_call(client_socket):
     intervalo = 5
@@ -35,3 +39,26 @@ def aguardando_video_call(client_socket):
             tempo_restante -= 1
 
     return None
+
+
+def send_video(ip_destino_cliente, porta_destino_cliente):
+    camera = CameraClient(ip_destino_cliente, porta_destino_cliente)
+    camera.start_stream()
+
+
+def start_streaming(client_socket, ip, port):
+    print("Iniciando streaming.")
+
+    response = aguardando_video_call(client_socket)
+    if response:
+        ip_destino, port_destino = response.split(',')
+
+        print(f"Server para receber video via vidstream: {ip}, {port}")
+        print(f"Server para enviar video via vidstream: {ip_destino}, {port_destino}")
+        server = StreamingServer(ip, port)
+        server.start_server()
+
+        time.sleep(10)
+
+        # Envia a imagem para o outro cliente
+        send_video(ip_destino, int(port_destino))

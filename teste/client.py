@@ -1,34 +1,8 @@
-import select
 import socket
-import time
 
-from vidstream import StreamingServer, CameraClient
-import cv2
-
-from utils.user_actions import request_register, aguardando_video_call
+from utils.user_actions import request_register, start_streaming
 
 porta_receber_chamadas = 0
-
-def send_video(ip_destino_cliente, porta_destino_cliente):
-    camera = CameraClient(ip_destino_cliente, porta_destino_cliente)
-    camera.start_stream()
-
-def start_streaming(client_socket, ip, port):
-    print("Iniciando streaming.")
-
-    response = aguardando_video_call(client_socket)
-    if response:
-        ip_destino, port_destino = response.split(',')
-
-        print(f"Server para receber video via vidstream: {ip}, {port}")
-        print(f"Server para enviar video via vidstream: {ip_destino}, {port_destino}")
-        server = StreamingServer(ip, port)
-        server.start_server()
-
-        time.sleep(10)
-
-        # Envia a imagem para o outro cliente
-        send_video(ip_destino, int(port_destino))
 
 def display_menu_and_return_option():
     print("Escolha uma opção:")
@@ -68,14 +42,6 @@ def main():
             ip_receive_cam = client_socket.getsockname()[0]
             port_receive_cam = int(porta_receber_chamadas)
             start_streaming(client_socket, ip_receive_cam, port_receive_cam)
-
-        #
-        # response_from_server = client_socket.recv(4096).decode().split(',')
-        # if response_from_server:
-        #     print(response_from_server[0])
-        #     ip_client = client_socket.getsockname()[0]
-        #     port_client = int(response_from_server[1])
-        #     start_streaming(client_socket, ip_client, port_client)
 
 if __name__ == "__main__":
     main()
