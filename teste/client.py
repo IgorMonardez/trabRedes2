@@ -61,7 +61,7 @@ def main():
                 # Armazena a porta para receber chamadas
                 porta_receber_chamadas = porta
         elif choice == "5":
-            ip_receive_cam = client_socket.getpeername()[0]
+            ip_receive_cam = client_socket.getsockname()[0]
             port_receive_cam = int(porta_receber_chamadas)
             start_streaming(client_socket, ip_receive_cam, port_receive_cam)
 
