@@ -1,7 +1,8 @@
 import socket
 import threading
 
-from utils.server_actions import register_user, get_client_port_by_socket, get_socket_by_ip, query_user_by_username
+from utils.server_actions import register_user, get_client_port_by_socket, get_socket_by_ip, query_user_by_username, \
+    get_user_socket_by_username, send_invite_request_to_client, send_invite_response_to_client
 
 # Criação do socket do servidor
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -16,6 +17,7 @@ portas_possiveis = [7777, 6001, 6002, 6003, 6004, 6005, 6006]
 
 portas_usadas = []
 
+
 def receive_message_from_client(client_socket):
     try:
         client_data = client_socket.recv(4096)
@@ -27,26 +29,22 @@ def receive_message_from_client(client_socket):
         print(e)
         return False
 
-def query_user_socket(clients, username):
-    for key, value in clients.items():
-        if value.get('Nome') == username:
-            return key
-    return 0
 
 def unregister_client_from_server(client_name):
     # Checa se o usuário está no servidor
-    user_to_remove = query_user_socket(clients_list, client_name)
+    user_to_remove = get_user_socket_by_username(clients_list, client_name)
     if user_to_remove == 0:
         client_socket.send(f"Erro ao desvincular usuário do servidor".encode())
         return False
     else:
-        portas_possiveis.append(clients_list.get(user_to_remove)['Porta']) 
+        portas_possiveis.append(clients_list.get(user_to_remove)['Porta'])
         client_socket.send(f"Usuário {client_name} desconectado com sucesso".encode())
         client_socket.close()
         clients_list.pop(user_to_remove)
         print("Usuário desvinculado com sucesso.")
         print(clients_list)
         return True
+
 
 def handle_client(client_socket):
     print("Conexão de cliente", client_address)
@@ -80,28 +78,40 @@ def handle_client(client_socket):
                 else:
                     msg = user_info
                 client_socket.send(msg.encode())
+            elif client_action == "INVITE_REQUEST":
+                client_destinatario = message_from_client[1]
+                client_destinatario_socket = get_user_socket_by_username(clients_list, client_destinatario)
+
+                client_remetente_nome = clients_list.get(client_socket)['Nome']
+                client_remetente_socket = get_user_socket_by_username(clients_list, client_remetente_nome)
+                client_remetente_ip = client_remetente_socket.getpeername()[0]
+                client_remetente_porta = get_client_port_by_socket(client_remetente_socket, clients_list)
+                send_invite_request_to_client(client_destinatario_socket, client_remetente_nome, client_remetente_ip, client_remetente_porta)
+            elif client_action == "RESPONSE_INVITE_REQUEST":
+                client_response_invite_request = message_from_client[1].split('-')
+                send_invite_response_to_client(client_response_invite_request, clients_list)
             elif client_action == "EXIT":
                 client_name = message_from_client[1]
                 user_unregistered = unregister_client_from_server(client_name)
                 if user_unregistered:
                     break
 
-
             # (BETA) No momento que 2 clientes estiverem registrados, o servidor irá enviar a informação de um para o outro
-            if len(clients_list) == 2:
-                client1_socket = list(clients_list.keys())[0]
-                client2_socket = list(clients_list.keys())[1]
+            # if len(clients_list) == 2:
+            #     client1_socket = list(clients_list.keys())[0]
+            #     client2_socket = list(clients_list.keys())[1]
+            #
+            #     client1_port = get_client_port_by_socket(client1_socket, clients_list)
+            #     client2_port = get_client_port_by_socket(client2_socket, clients_list)
+            #
+            #     # Envia a informação do cliente 1 para o cliente 2
+            #     client1_ip = client1_socket.getpeername()[0]
+            #     client2_socket.send(f"{client1_ip},{client1_port}".encode())
+            #
+            #     # Envia a informação do cliente 2 para o cliente 1
+            #     client2_ip = client2_socket.getpeername()[0]
+            #     client1_socket.send(f"{client2_ip},{client2_port}".encode())
 
-                client1_port = get_client_port_by_socket(client1_socket, clients_list)
-                client2_port = get_client_port_by_socket(client2_socket, clients_list)
-
-                # Envia a informação do cliente 1 para o cliente 2
-                client1_ip = client1_socket.getpeername()[0]
-                client2_socket.send(f"{client1_ip},{client1_port}".encode())
-
-                # Envia a informação do cliente 2 para o cliente 1
-                client2_ip = client2_socket.getpeername()[0]
-                client1_socket.send(f"{client2_ip},{client2_port}".encode())
 
 # Começa a ouvir por conexões
 server_socket.listen(5)
@@ -112,6 +122,6 @@ while True:
     client_socket, client_address = server_socket.accept()
     print("Conexão de cliente", client_address)
 
-    #Inicia uma nova thread para cada cliente
+    # Inicia uma nova thread para cada cliente
     client_handler = threading.Thread(target=handle_client, args=(client_socket,))
     client_handler.start()
