@@ -20,12 +20,14 @@ def request_register(client_socket):
         print(server_message)
         return client_port, name
 
+
 def search_user(client_socket):
     user_to_query = input("Digite o nome do usuário que deseja consultar: ")
     query_request = f"QUERY,{user_to_query}"
     client_socket.send(query_request.encode())
     response = client_socket.recv(1024).decode()
     return response
+
 
 def quit_server(client_socket, client_name):
     query_quit = f"EXIT,{client_name}"
@@ -36,6 +38,7 @@ def quit_server(client_socket, client_name):
     else:
         return True
 
+
 def waiting_request_video_call(client_socket, port_connect):
     intervalo = 5
     tempo_restante = 30
@@ -45,9 +48,11 @@ def waiting_request_video_call(client_socket, port_connect):
     while tempo_restante > 0:
         ready, _, _ = select.select([client_socket], [], [], 1)  # Espera por 1 segundo
         if ready:
-            request, request_client_name, request_client_ip, request_client_port = client_socket.recv(1024).decode().split(',')
+            request, request_client_name, request_client_ip, request_client_port = client_socket.recv(
+                1024).decode().split(',')
             if request == "INVITE_REQUEST":
-                request_response = input(f"Você recebeu uma solicitação de videochamada de {request_client_name}. Pressione ENTER para aceitar ou digite 'n' para recusar.")
+                request_response = input(
+                    f"Você recebeu uma solicitação de videochamada de {request_client_name}. Pressione ENTER para aceitar ou digite 'n' para recusar.")
                 request_header = "RESPONSE_INVITE_REQUEST"
                 request_response_info_to_connect = "-"
                 if request_response == "":
@@ -71,6 +76,7 @@ def waiting_request_video_call(client_socket, port_connect):
     print("Estado de aguardando solicitação de chamada encerrado!")
     return False, None, None
 
+
 def request_video_call(client_socket, destination_name):
     try:
         # Envia a mensagem para o servidor de INVITE_REQUEST
@@ -92,33 +98,13 @@ def request_video_call(client_socket, destination_name):
         return False
 
 
-
-def aguardando_video_call(client_socket):
-    intervalo = 5
-    tempo_restante = 20
-
-    print(f"Timer iniciado para {tempo_restante} segundos.")
-
-    while tempo_restante > 0:
-        ready, _, _ = select.select([client_socket], [], [], 1)  # Espera por 1 segundo
-        if ready:
-            response = client_socket.recv(4096).decode()
-            if response:
-                return response
-        else:
-            if tempo_restante % intervalo == 0:
-                print(f"{tempo_restante} segundos restantes...")
-            tempo_restante -= 1
-
-    return None
-
-
 def send_video(ip_destino_cliente, porta_destino_cliente):
     camera = CameraClient(ip_destino_cliente, porta_destino_cliente)
     camera.start_stream()
 
 
-def start_streaming(ip_server_to_host_connection, port_server_to_host_connection, ip_server_to_connect, port_server_to_connect):
+def start_streaming(ip_server_to_host_connection, port_server_to_host_connection, ip_server_to_connect,
+                    port_server_to_connect):
     print("Iniciando streaming.")
 
     ip_server_host = ip_server_to_host_connection.strip()

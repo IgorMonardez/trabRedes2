@@ -45,9 +45,12 @@ def get_user_socket_by_username(clients, username):
     return 0
 
 
-def send_invite_request_to_client(client_socket_destinatario, client_remetente_nome, client_remetente_ip, client_remetente_port):
+def send_invite_request_to_client(client_socket_destinatario, client_remetente_nome, client_remetente_ip,
+                                  client_remetente_port):
     # Envia a mensagem de requisição para o cliente destinatário da chamada
-    client_socket_destinatario.send(f"INVITE_REQUEST, {client_remetente_nome}, {client_remetente_ip}, {client_remetente_port}".encode())
+    client_socket_destinatario.send(
+        f"INVITE_REQUEST, {client_remetente_nome}, {client_remetente_ip}, {client_remetente_port}".encode())
+
 
 def send_invite_response_to_client(client_response_invite_request, clients_list):
     client_response = client_response_invite_request[0]
