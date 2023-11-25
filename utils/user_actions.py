@@ -121,8 +121,14 @@ def send_video(ip_destino_cliente, porta_destino_cliente):
 def start_streaming(ip_server_to_host_connection, port_server_to_host_connection, ip_server_to_connect, port_server_to_connect):
     print("Iniciando streaming.")
 
-    print(f"Server para receber video via vidstream: {ip_server_to_host_connection}, {port_server_to_host_connection}")
-    print(f"Server para enviar video via vidstream: {ip_server_to_connect}, {port_server_to_connect}")
+    ip_server_host = ip_server_to_host_connection.strip()
+    port_server_host = int(port_server_to_host_connection.strip())
+
+    ip_server_to_send_video = ip_server_to_connect.strip()
+    port_server_to_send_video = int(port_server_to_connect.strip())
+
+    print(f"Server para receber video via vidstream: {ip_server_host}, {port_server_host}")
+    print(f"Server para enviar video via vidstream: {ip_server_to_send_video}, {port_server_to_send_video}")
     # server = StreamingServer(ip_server_to_host_connection, port_server_to_connect)
     # server.start_server()
     #

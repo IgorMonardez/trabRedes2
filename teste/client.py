@@ -26,7 +26,7 @@ def main():
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     # Endereço do servidor
-    server_address = ("192.168.1.15", 5000)
+    server_address = ("192.168.1.15", 7000)
 
     # Conecta ao servidor
     client_socket.connect(server_address)

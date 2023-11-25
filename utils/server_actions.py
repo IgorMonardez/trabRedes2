@@ -54,7 +54,7 @@ def send_invite_response_to_client(client_response_invite_request, clients_list)
 
     client_requested_ip = client_response_invite_request[1]
     client_requested_port = client_response_invite_request[2]
-    client_request_name = client_response_invite_request[3]  # Esse é o nome do cliente que requisitou a chamada
+    client_request_name = client_response_invite_request[3].strip()  # Esse é o nome do cliente que requisitou a chamada
     client_request_socket = get_user_socket_by_username(clients_list, client_request_name)
 
     # Se o usuário aceitou, client_response será vazio (Ele pressionou ENTER)
