@@ -13,7 +13,7 @@ def request_register(client_socket):
     client_socket.send(msg.encode())
 
     server_response = client_socket.recv(1024).decode()
-    if not server_response:
+    if server_response == "Usuário já cadastrado":
         return False
     else:
         server_message, client_port = server_response.split(',')
@@ -22,10 +22,19 @@ def request_register(client_socket):
 
 def search_user(client_socket):
     user_to_query = input("Digite o nome do usuário que deseja consultar: ")
-    query_request = f"QUERY, {user_to_query}"
+    query_request = f"QUERY,{user_to_query}"
     client_socket.send(query_request.encode())
     response = client_socket.recv(1024).decode()
+    return response
 
+def quit_server(client_socket, client_name):
+    query_quit = f"EXIT,{client_name}"
+    client_socket.send(query_quit.encode())
+    response = client_socket.recv(1024).decode()
+    if response == "Erro ao desvincular usuário do servidor":
+        return False
+    else:
+        return True
 
 def aguardando_video_call(client_socket):
     intervalo = 5

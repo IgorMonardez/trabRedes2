@@ -162,6 +162,7 @@ def main():
 
         elif choice == "6":
             # Opção 6: Sair
+            client_socket.send(f"EXIT,{client_name}".encode)
             break
         else:
             print("Opção inválida. Tente novamente.")

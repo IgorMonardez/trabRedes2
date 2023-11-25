@@ -7,6 +7,13 @@ def register_user(clients, client_socket, client_name, portas_possiveis):
         return client_port, clients[client_socket]
     else:
         print(f"Usuário {client_name} já está cadastrado")
+        return False, False
+
+def query_user_by_username(clients, username):
+    for key, value in clients.items():
+        if value.get('Nome') == username:
+            return f"IP={key}, Info: {value}"
+    return None
 
 
 def is_user_registered(client_name, clients):
