@@ -18,7 +18,7 @@ def request_register(client_socket):
     else:
         server_message, client_port = server_response.split(',')
         print(server_message)
-        return client_port
+        return client_port, name
 
 def search_user(client_socket):
     user_to_query = input("Digite o nome do usuário que deseja consultar: ")

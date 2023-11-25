@@ -17,9 +17,8 @@ portas_possiveis = [7777, 6001, 6002, 6003, 6004, 6005, 6006]
 portas_usadas = []
 
 def receive_message_from_client(client_socket):
-    client_data = client_socket.recv(4096)
-
     try:
+        client_data = client_socket.recv(4096)
         client_info = client_data.decode().split(',')
         client_action = client_info[0]
         client_action_helper = client_info[1]

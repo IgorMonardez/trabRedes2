@@ -3,6 +3,7 @@ import socket
 from utils.user_actions import request_register, start_streaming, search_user, quit_server
 
 porta_receber_chamadas = 0
+client_name = ''
 
 def display_menu_and_return_option():
     print("Escolha uma opção:")
@@ -17,6 +18,7 @@ def display_menu_and_return_option():
 def main():
     # Criação do socket do cliente
     global porta_receber_chamadas
+    global client_name
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     # Endereço do servidor
@@ -31,14 +33,14 @@ def main():
 
         if choice == "1":
             # Se registra no servidor e recebe a porta para receber chamadas
-            porta = request_register(client_socket)
+            porta, name = request_register(client_socket)
             if not porta:
-                print("Registro falhou.")
-                client_socket.close()
+                print("Usuário já cadastrado.")
             else:
                 # Registro foi bem sucedido
                 # Armazena a porta para receber chamadas
                 porta_receber_chamadas = porta
+                client_name = name
         elif choice == "2":
             response = search_user(client_socket)
             print(response)
