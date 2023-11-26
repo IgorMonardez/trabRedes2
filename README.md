@@ -23,7 +23,7 @@ Este projeto visa desenvolver uma aplicação de videoconferência descentraliza
 - [ ] O socket cliente deve:
   - [x] Solicitar a videochamada a um par IP:porta de destino utilizando uma mensagem específica, como se fosse a mensagem de INVITE do protocolo SIP. Assim, o receptor pode negar ou aceitar o pedido.
   - [x] A reprodução da mídia deve ser iniciada assim que a chamada é aceita.
-  - [ ] Conter métodos para encerrar a transmissão.
+  - [x] Conter métodos para encerrar a transmissão. (A lib vidstream faz isso, a transmissão é encerrada caso a tecla q seja pressionada)
 
 - [x] O socket servidor deve:
   - [x] Aceitar ou rejeitar a chamada.
