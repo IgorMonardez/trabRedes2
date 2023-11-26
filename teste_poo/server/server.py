@@ -44,5 +44,5 @@ class Server:
                     break
 
 if __name__ == "__main__":
-    server = Server("192.168.0.110", 7000)
+    server = Server("0.0.0.0", 7000)
     server.start_server()

@@ -1,6 +1,7 @@
 import socket
 from utils.user_actions import UserActions
 
+
 class Client:
     def __init__(self, server_address, server_port):
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -30,14 +31,15 @@ class Client:
             choice = self.display_menu_and_return_option()
 
             if choice == "1":
-                self.user_actions.register_and_receive_port()
+                self.porta_receber_chamadas, _ = self.user_actions.request_register()
             elif choice == "2":
                 response = self.user_actions.search_user()
                 print(response)
             elif choice == "3":
-                self.user_actions.request_video_call()
+                destination_name = input("Digite o nome do destinatário: ")
+                self.user_actions.request_video_call(destination_name)
             elif choice == "4":
-                self.user_actions.wait_for_video_call_request()
+                self.user_actions.waiting_request_video_call(self.porta_receber_chamadas)
             elif choice == "5":
                 unregister_success = self.user_actions.quit_server(self.client_name)
                 if unregister_success:
@@ -46,6 +48,7 @@ class Client:
                 else:
                     continue
 
+
 if __name__ == "__main__":
-    client = Client("192.168.0.110", 7000)
+    client = Client("192.168.0.108", 7000)
     client.main()
