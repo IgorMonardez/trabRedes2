@@ -50,7 +50,7 @@ class Client:
                 user_response_accepted, user_ip_server_to_connect, user_port_server_to_connect = self.user_actions.waiting_request_video_call(self.porta_receber_chamadas)
                 if user_response_accepted:
                     print("Video chamada aceita.")
-                    ip_server_to_host_connection = self.client_socket[0]
+                    ip_server_to_host_connection = self.client_socket.getsockname()[0]
                     port_server_to_host_connection = self.porta_receber_chamadas
                     self.user_actions.start_streaming(ip_server_to_host_connection, port_server_to_host_connection, user_ip_server_to_connect, user_port_server_to_connect)
             elif choice == "5":
