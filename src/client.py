@@ -8,10 +8,14 @@ from utils.user_actions import \
     request_video_call, \
     waiting_request_video_call
 
+# Variáveis ​​globais para armazenar a porta de recebimento de chamadas e o nome do cliente
 porta_receber_chamadas = 0
 client_name = ''
 
 def display_menu_and_return_option():
+    '''
+    Exibe um menu para o cliente escolher a ação que deseja realizar
+    '''
     print("Escolha uma opção:")
     print("1 - Registrar-se no servidor")
     print("2 - Realizar consulta de usuário")
@@ -23,6 +27,10 @@ def display_menu_and_return_option():
     return choice
 
 def main():
+    '''
+    Função principal do cliente
+    '''
+
     # Criação do socket do cliente
     global porta_receber_chamadas
     global client_name

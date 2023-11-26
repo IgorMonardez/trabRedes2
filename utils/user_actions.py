@@ -5,6 +5,15 @@ from vidstream import StreamingServer, CameraClient, AudioSender, AudioReceiver
 
 
 def request_register(client_socket):
+    '''
+    Função que solicita o registro de um novo usuário no servidor
+
+    Parâmetros:
+    client_socket (socket): Socket do cliente
+
+    Retorna:
+    tupla: Uma tupla contendo o número da porta e o nome do cliente se o registro for bem-sucedido, caso contrário, Falso.
+    '''
     # Solicita o nome do usuário
     name = input("Digite seu nome: ")
     header = "REGISTER"
@@ -22,6 +31,15 @@ def request_register(client_socket):
 
 
 def search_user(client_socket):
+    '''
+    Função que solicita ao servidor informações sobre um usuário
+
+    Parâmetros:
+    client_socket (socket): Socket do cliente
+
+    Retorno:
+    str: Uma string contendo as informações de resposta do servidor
+    '''
     user_to_query = input("Digite o nome do usuário que deseja consultar: ")
     query_request = f"QUERY,{user_to_query}"
     client_socket.send(query_request.encode())
@@ -30,6 +48,16 @@ def search_user(client_socket):
 
 
 def quit_server(client_socket, client_name):
+    '''
+    Função que solicita ao servidor o desvinculo do cliente
+
+    Parâmetros:
+    client_socket (socket): Socket do cliente
+    client_name (str): Nome do cliente
+
+    Retorno:
+    bool: True se o desvinculo for bem-sucedido, caso contrário, False
+    '''
     query_quit = f"EXIT,{client_name}"
     client_socket.send(query_quit.encode())
     response = client_socket.recv(1024).decode()
@@ -40,6 +68,16 @@ def quit_server(client_socket, client_name):
 
 
 def waiting_request_video_call(client_socket, port_connect):
+    '''
+    Função que aguarda uma solicitação de videochamada de outro cliente
+
+    Parâmetros:
+    client_socket (socket): Socket do cliente
+    port_connect (int): Porta do cliente
+
+    Retorno:
+    tupla: Uma tupla contendo um booleano indicando se a solicitação de chamada de vídeo foi aceita, o endereço IP e o número da porta do servidor ao qual se conectar.
+    '''
     intervalo = 5
     tempo_restante = 30
 
@@ -78,6 +116,16 @@ def waiting_request_video_call(client_socket, port_connect):
 
 
 def request_video_call(client_socket, destination_name):
+    '''
+    Solicite uma videochamada para outro usuário.
+
+    Parâmetros:
+    client_socket (socket): O socket do cliente.
+    destination_name (str): O nome do usuário a ser chamado.
+
+    Retorna:
+    tupla: Uma tupla contendo um booleano indicando se a solicitação de chamada de vídeo foi aceita, o endereço IP e o número da porta do servidor ao qual se conectar.
+    '''
     try:
         # Envia a mensagem para o servidor de INVITE_REQUEST
         client_socket.send(f"INVITE_REQUEST,{destination_name}".encode())
@@ -99,16 +147,39 @@ def request_video_call(client_socket, destination_name):
 
 
 def send_video(ip_destino_cliente, porta_destino_cliente):
+    """
+    Comece a transmitir vídeo para outro usuário.
+
+    Parâmetros:
+    ip_destino_cliente (str): O endereço IP do usuário para o qual transmitir.
+    porta_destino_cliente (int): O número da porta do usuário para a qual transmitir.
+    """
     camera = CameraClient(ip_destino_cliente, porta_destino_cliente)
     camera.start_stream()
 
 def send_audio(ip_destino_cliente, porta_destino_cliente):
+    """
+       Comece a transmitir áudio para outro usuário.
+
+       Parâmetros:
+       ip_destino_cliente (str): O endereço IP do usuário para o qual transmitir.
+       porta_destino_cliente (int): O número da porta do usuário para a qual transmitir.
+       """
     audio = AudioSender(ip_destino_cliente, porta_destino_cliente)
     audio.start_stream()
 
 
 def start_streaming(ip_server_to_host_connection, port_server_to_host_connection, ip_server_to_connect,
                     port_server_to_connect):
+    """
+    Comece a transmitir vídeo e áudio para outro usuário.
+
+    Parâmetros:
+    ip_server_to_host_connection (str): O endereço IP do servidor para hospedar a conexão.
+    port_server_to_host_connection (int): O número da porta do servidor para hospedar a conexão.
+    ip_server_to_connect (str): O endereço IP do servidor ao qual se conectar.
+    port_server_to_connect (int): O número da porta do servidor ao qual se conectar.
+    """
     print("Iniciando streaming.")
 
     ip_server_host = ip_server_to_host_connection.strip()
