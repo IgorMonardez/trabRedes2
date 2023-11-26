@@ -15,6 +15,7 @@ class UserActions:
 
         server_response = self.client_socket.recv(1024).decode()
         if server_response == "Usuário já cadastrado":
+            print(server_response)
             return False
         else:
             server_message, client_port = server_response.split(',')

@@ -31,7 +31,7 @@ class Client:
             choice = self.display_menu_and_return_option()
 
             if choice == "1":
-                self.porta_receber_chamadas, _ = self.user_actions.request_register()
+                self.porta_receber_chamadas, self.client_name = self.user_actions.request_register()
             elif choice == "2":
                 response = self.user_actions.search_user()
                 print(response)
