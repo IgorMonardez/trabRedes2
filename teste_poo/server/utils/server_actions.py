@@ -71,7 +71,7 @@ class ServerActions:
     def get_available_port(self):
         # Cria um socket para encontrar uma porta disponível
         temp_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        temp_socket.bind(('127.0.0.1', 0))  # Vincula a uma porta aleatória disponível
+        temp_socket.bind(('0.0.0.0', 0))  # Vincula a uma porta aleatória disponível
         _, porta = temp_socket.getsockname()
         temp_socket.close()
         return porta
