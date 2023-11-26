@@ -1,7 +1,7 @@
 import select
 import time
 
-from vidstream import StreamingServer, CameraClient
+from vidstream import StreamingServer, CameraClient, AudioSender, AudioReceiver
 
 
 def request_register(client_socket):
@@ -102,6 +102,10 @@ def send_video(ip_destino_cliente, porta_destino_cliente):
     camera = CameraClient(ip_destino_cliente, porta_destino_cliente)
     camera.start_stream()
 
+def send_audio(ip_destino_cliente, porta_destino_cliente):
+    audio = AudioSender(ip_destino_cliente, porta_destino_cliente)
+    audio.start_stream()
+
 
 def start_streaming(ip_server_to_host_connection, port_server_to_host_connection, ip_server_to_connect,
                     port_server_to_connect):
@@ -110,15 +114,21 @@ def start_streaming(ip_server_to_host_connection, port_server_to_host_connection
     ip_server_host = ip_server_to_host_connection.strip()
     port_server_host = int(port_server_to_host_connection.strip())
 
-    ip_server_to_send_video = ip_server_to_connect.strip()
-    port_server_to_send_video = int(port_server_to_connect.strip())
+    ip_server_to_send_video_and_audio = ip_server_to_connect.strip()
+    port_server_to_send_video_and_audio = int(port_server_to_connect.strip())
 
     print(f"Server para receber video via vidstream: {ip_server_host}, {port_server_host}")
-    print(f"Server para enviar video via vidstream: {ip_server_to_send_video}, {port_server_to_send_video}")
+    print(f"Server para enviar video via vidstream: {ip_server_to_send_video_and_audio}, {port_server_to_send_video_and_audio}")
     server = StreamingServer(ip_server_host, port_server_host)
     server.start_server()
+
+    server_audio = AudioReceiver(ip_server_host, port_server_host + 100)
+    server_audio.start_server()
 
     time.sleep(3)
 
     # Envia a imagem para o outro cliente
-    send_video(ip_server_to_send_video, int(port_server_to_send_video))
+    send_video(ip_server_to_send_video_and_audio, int(port_server_to_send_video_and_audio))
+
+    # Envia o audio para o outro cliente
+    send_audio(ip_server_to_send_video_and_audio, int(port_server_to_send_video_and_audio) + 100)
