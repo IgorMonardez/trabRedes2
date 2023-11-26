@@ -43,12 +43,20 @@ class ServerActions:
         sender_port = self.clients_list[client_socket]["Porta"]
         dest_socket.send(f"INVITE_REQUEST,{sender_name},{sender_ip},{sender_port}".encode())
 
+    def get_user_socket_by_username(self, client_name):
+        for key, value in self.clients_list.items():
+            if value.get('Nome') == client_name:
+                return key
+        return 0
+
     def handle_invite_response(self, client_socket, response_info):
         response_info_list = response_info.split('-')
         is_accepted = response_info_list[0]
+        dest_client_name = response_info_list[3]
+        client_user_socket = self.get_user_socket_by_username(dest_client_name)
         if is_accepted == "True":
             dest_ip, dest_port = response_info_list[1], response_info_list[2]
-            client_socket.send(f"{is_accepted},{dest_ip},{dest_port}".encode())
+            client_user_socket.send(f"{is_accepted},{dest_ip},{dest_port}".encode())
         else:
             client_socket.send("False,,".encode())
 

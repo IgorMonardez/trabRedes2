@@ -47,7 +47,12 @@ class Client:
                     port_server_to_host_connection = self.porta_receber_chamadas
                     self.user_actions.start_streaming(ip_server_to_host_connection, port_server_to_host_connection, user_ip_server_to_connect, user_port_server_to_connect)
             elif choice == "4":
-                self.user_actions.waiting_request_video_call(self.porta_receber_chamadas)
+                user_response_accepted, user_ip_server_to_connect, user_port_server_to_connect = self.user_actions.waiting_request_video_call(self.porta_receber_chamadas)
+                if user_response_accepted:
+                    print("Video chamada aceita.")
+                    ip_server_to_host_connection = self.client_socket[0]
+                    port_server_to_host_connection = self.porta_receber_chamadas
+                    self.user_actions.start_streaming(ip_server_to_host_connection, port_server_to_host_connection, user_ip_server_to_connect, user_port_server_to_connect)
             elif choice == "5":
                 unregister_success = self.user_actions.quit_server(self.client_name)
                 if unregister_success:
@@ -58,5 +63,5 @@ class Client:
 
 
 if __name__ == "__main__":
-    client = Client("192.168.0.110", 7000)
+    client = Client("192.168.0.108", 7000)
     client.main()
