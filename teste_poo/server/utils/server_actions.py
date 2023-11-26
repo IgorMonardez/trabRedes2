@@ -1,3 +1,4 @@
+import socket
 class ServerActions:
     def __init__(self, clients_list):
         self.clients_list = clients_list
@@ -68,9 +69,12 @@ class ServerActions:
         return False
 
     def get_available_port(self):
-        # Implement your logic to get an available port
-        # This could be based on a predefined range or any other criteria
-        return 7777  # Placeholder value, modify as needed
+        # Cria um socket para encontrar uma porta disponível
+        temp_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        temp_socket.bind(('127.0.0.1', 0))  # Vincula a uma porta aleatória disponível
+        _, porta = temp_socket.getsockname()
+        temp_socket.close()
+        return porta
 
     def get_user_socket_by_username(self, username):
         for client_socket, client_info in self.clients_list.items():
