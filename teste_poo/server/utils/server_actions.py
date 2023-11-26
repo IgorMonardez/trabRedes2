@@ -20,7 +20,7 @@ class ServerActions:
             self.clients_list[client_socket] = {"Nome": client_name, "Porta": client_port}
             ip_usuario = client_socket.getpeername()[0]
             print(f"Novo usuário registrado: Nome={client_name}, Porta={client_port}, IP={ip_usuario}")
-            response_msg = f"Registro bem sucedido. Porta={client_port}"
+            response_msg = f"Registro bem sucedido.,{client_port}"
             client_socket.send(response_msg.encode())
         else:
             print(f"Usuário {client_name} já está cadastrado")
