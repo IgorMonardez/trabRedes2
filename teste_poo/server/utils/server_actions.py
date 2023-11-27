@@ -19,76 +19,69 @@ class ServerActions:
             return False
 
     def register_user(self, client_socket, client_name):
-        with self.lock:
-            if not self.is_user_registered(client_name):
-                client_port = self.get_available_port()
-                self.clients_list[client_socket] = {"Nome": client_name, "Porta": client_port}
-                ip_usuario = client_socket.getpeername()[0]
-                print(f"Novo usuário registrado: Nome={client_name}, Porta={client_port}, IP={ip_usuario}")
-                response_msg = f"Registro bem-sucedido.,{client_port}"
-                client_socket.send(response_msg.encode())
-            else:
-                print(f"Usuário {client_name} já está cadastrado")
-                response_msg = "Usuário já cadastrado"
-                client_socket.send(response_msg.encode())
-
-    def query_user_by_username(self, client_socket, username):
-        with self.lock:
-            for key, value in self.clients_list.items():
-                if value.get('Nome') == username:
-                    response_msg = f"IP={key}, Info: {value}"
-                    client_socket.send(response_msg.encode())
-                    return
-            response_msg = "Usuário não cadastrado"
+        if not self.is_user_registered(client_name):
+            client_port = self.get_available_port()
+            self.clients_list[client_socket] = {"Nome": client_name, "Porta": client_port}
+            ip_usuario = client_socket.getpeername()[0]
+            print(f"Novo usuário registrado: Nome={client_name}, Porta={client_port}, IP={ip_usuario}")
+            response_msg = f"Registro bem-sucedido.,{client_port}"
+            client_socket.send(response_msg.encode())
+        else:
+            print(f"Usuário {client_name} já está cadastrado")
+            response_msg = "Usuário já cadastrado"
             client_socket.send(response_msg.encode())
 
+    def query_user_by_username(self, client_socket, username):
+        for key, value in self.clients_list.items():
+            if value.get('Nome') == username:
+                response_msg = f"IP={key}, Info: {value}"
+                client_socket.send(response_msg.encode())
+                return
+        response_msg = "Usuário não cadastrado"
+        client_socket.send(response_msg.encode())
+
     def handle_invite_request(self, client_socket, dest_username):
-        with self.lock:
-            dest_socket = self.get_user_socket_by_username(dest_username)
-            if dest_socket:
-                sender_name = self.clients_list[client_socket]["Nome"]
-                sender_ip = client_socket.getpeername()[0]
-                sender_port = self.clients_list[client_socket]["Porta"]
-                dest_socket.send(f"INVITE_REQUEST,{sender_name},{sender_ip},{sender_port}".encode())
-            else:
-                print(f"Destinatário {dest_username} não encontrado.")
+        dest_socket = self.get_user_socket_by_username(dest_username)
+        if dest_socket:
+            sender_name = self.clients_list[client_socket]["Nome"]
+            sender_ip = client_socket.getpeername()[0]
+            sender_port = self.clients_list[client_socket]["Porta"]
+            dest_socket.send(f"INVITE_REQUEST,{sender_name},{sender_ip},{sender_port}".encode())
+        else:
+            print(f"Destinatário {dest_username} não encontrado.")
 
     def get_user_socket_by_username(self, client_name):
-        with self.lock:
-            for key, value in self.clients_list.items():
-                if value.get('Nome') == client_name:
-                    return key
-            return None
+        for key, value in self.clients_list.items():
+            if value.get('Nome') == client_name:
+                return key
+        return None
 
     def handle_invite_response(self, client_socket, response_info):
-        with self.lock:
-            response_info_list = response_info.split('-')
-            is_accepted = response_info_list[0]
-            dest_client_name = response_info_list[3]
-            client_user_socket = self.get_user_socket_by_username(dest_client_name)
-            if is_accepted == "True" and client_user_socket:
-                dest_ip, dest_port = response_info_list[1], response_info_list[2]
-                client_user_socket.send(f"{is_accepted},{dest_ip},{dest_port}".encode())
-            else:
-                client_socket.send("False,,".encode())
+        response_info_list = response_info.split('-')
+        is_accepted = response_info_list[0]
+        dest_client_name = response_info_list[3]
+        client_user_socket = self.get_user_socket_by_username(dest_client_name)
+        if is_accepted == "True" and client_user_socket:
+            dest_ip, dest_port = response_info_list[1], response_info_list[2]
+            client_user_socket.send(f"{is_accepted},{dest_ip},{dest_port}".encode())
+        else:
+            client_socket.send("False,,".encode())
 
     def unregister_client_from_server(self, client_socket, client_name):
-        with self.lock:
-            if self.is_user_registered(client_name):
-                self.clients_list.pop(client_socket, None)
-                client_socket.send(f"Usuário {client_name} desconectado com sucesso".encode())
-                print(f"Usuário {client_name} desconectado com sucesso.")
-                return True
-            else:
-                client_socket.send("Erro ao desvincular usuário do servidor".encode())
-                return False
+        if self.is_user_registered(client_name):
+            self.clients_list.pop(client_socket, None)
+            client_socket.send(f"Usuário {client_name} desconectado com sucesso".encode())
+            print(f"Usuário {client_name} desconectado com sucesso.")
+            return True
+        else:
+            client_socket.send("Erro ao desvincular usuário do servidor".encode())
+            return False
 
     def is_user_registered(self, client_name):
-        with self.lock:
-            for client_info in self.clients_list.values():
-                if client_info['Nome'] == client_name:
-                    return True
-            return False
+        for client_info in self.clients_list.values():
+            if client_info['Nome'] == client_name:
+                return True
+        return False
 
     def get_available_port(self):
         # Cria um socket para encontrar uma porta disponível
